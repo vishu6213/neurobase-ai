@@ -18,7 +18,10 @@ let agentInstance: any = null;
 export async function getAgent() {
   if (agentInstance) return agentInstance;
 
-  if (!process.env.CDP_API_KEY_NAME || !process.env.CDP_API_KEY_PRIVATE_KEY) {
+  const keyName = process.env.CDP_API_KEY_NAME?.replace(/^["']|["']$/g, '');
+  const keySecret = process.env.CDP_API_KEY_PRIVATE_KEY?.replace(/^["']|["']$/g, '').replace(/\\n/g, '\n');
+
+  if (!keyName || !keySecret) {
     return null;
   }
 
@@ -34,8 +37,8 @@ export async function getAgent() {
         // @ts-ignore
         erc20ActionProvider(),
         cdpApiActionProvider({
-          apiKeyName: process.env.CDP_API_KEY_NAME,
-          apiKeySecret: process.env.CDP_API_KEY_PRIVATE_KEY,
+          apiKeyName: keyName,
+          apiKeySecret: keySecret,
         }),
         // @ts-ignore
         cdpEvmWalletActionProvider(),

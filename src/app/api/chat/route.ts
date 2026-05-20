@@ -98,31 +98,86 @@ export async function POST(req: Request) {
     - Support symbols such as: ETH, USDC, DEGEN, AERO, WETH.
     - The JSON payload inside the <onchain_action> tag must be valid and contain exactly the fields listed above.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://neurobase.ai", // Optional, for OpenRouter rankings
-        "X-Title": "NeuroBase AI", // Optional
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001", // High performance low-latency model
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages.map((m: any) => ({
-            role: m.role,
-            content: m.content
-          }))
-        ],
-        stream: true,
-      }),
-    });
+    const openRouterKey = process.env.OPENROUTER_API_KEY?.replace(/^["']|["']$/g, '');
+    const googleApiKey = process.env.GOOGLE_AI_API_KEY?.replace(/^["']|["']$/g, '');
+
+    let response: Response;
+    let isGeminiDirect = false;
+
+    if (openRouterKey) {
+      try {
+        console.log("[AI Chat] Attempting OpenRouter stream...");
+        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${openRouterKey}`,
+            "HTTP-Referer": "https://neurobase.ai",
+            "X-Title": "NeuroBase AI",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.0-flash-001",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...messages.map((m: any) => ({
+                role: m.role,
+                content: m.content
+              }))
+            ],
+            stream: true,
+          }),
+        });
+
+        if (!response.ok) {
+          const errText = await response.text().catch(() => "Unknown error");
+          console.warn("[AI Chat] OpenRouter call failed:", errText);
+          throw new Error(`OpenRouter failed: ${errText}`);
+        }
+      } catch (err) {
+        if (googleApiKey) {
+          console.log("[AI Chat] OpenRouter failed, falling back to direct Google Gemini API...");
+          isGeminiDirect = true;
+          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${googleApiKey}&alt=sse`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                { role: "user", parts: [{ text: systemPrompt }] },
+                ...messages.map((m: any) => ({
+                  role: m.role === "assistant" ? "model" : "user",
+                  parts: [{ text: m.content }]
+                }))
+              ]
+            })
+          });
+        } else {
+          throw err;
+        }
+      }
+    } else if (googleApiKey) {
+      console.log("[AI Chat] OpenRouter Key missing, using direct Google Gemini API...");
+      isGeminiDirect = true;
+      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${googleApiKey}&alt=sse`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            { role: "user", parts: [{ text: systemPrompt }] },
+            ...messages.map((m: any) => ({
+              role: m.role === "assistant" ? "model" : "user",
+              parts: [{ text: m.content }]
+            }))
+          ]
+        })
+      });
+    } else {
+      throw new Error("No valid AI API keys found. Please set OPENROUTER_API_KEY or GOOGLE_AI_API_KEY.");
+    }
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error("OpenRouter Error:", error);
-      throw new Error("OpenRouter API request failed");
+      const errText = await response.text().catch(() => "Unknown error");
+      console.error("[AI Chat] API request failed completely:", errText);
+      throw new Error(`AI API request failed: ${errText}`);
     }
 
     const encoder = new TextEncoder();
@@ -149,7 +204,12 @@ export async function POST(req: Request) {
               if (cleanLine.startsWith("data: ")) {
                 try {
                   const json = JSON.parse(cleanLine.substring(6));
-                  const content = json.choices[0]?.delta?.content || "";
+                  let content = "";
+                  if (isGeminiDirect) {
+                    content = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                  } else {
+                    content = json.choices?.[0]?.delta?.content || "";
+                  }
                   if (content) {
                     controller.enqueue(encoder.encode(content));
                   }
@@ -170,7 +230,8 @@ export async function POST(req: Request) {
     return new Response(stream);
   } catch (error) {
     console.error("AI Chat Error:", error);
-    return NextResponse.json({ error: "Failed to process chat" }, { status: 500 });
+    const errorMsg = error instanceof Error ? error.message : "Failed to process chat";
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
 
