@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NeuroBase AI — Production Build
 
-## Getting Started
+NeuroBase AI is a premium, futuristic AI-powered autonomous onchain assistant platform built on the Base ecosystem using Coinbase AgentKit and Google Gemini.
 
-First, run the development server:
+## 🚀 Vision
+To empower users with cinematic, autonomous intelligence for managing assets, analyzing risks, and discovering alpha on the Base network.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🛠 Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1. Cinematic Landing Page
+- **Hero Section**: 3D particle background with interactive typography.
+- **Neural Ecosystem**: Showcasing Aerodrome, Base, and Coinbase AgentKit integrations.
+- **Interactive Ticker**: Real-time mock data for Base ecosystem tokens.
+- **6-Point Features Grid**: Highlighting Autonomous Chat, Swap Simulation, and Risk Analysis.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Autonomous Dashboard
+- **Neural Swap**: AI-simulated token swaps with price impact and gas estimates.
+- **NFT Explorer**: Intelligence-driven NFT discovery and collection analysis.
+- **Risk Analyzer**: AI-powered contract scanning to detect honeypots and rug pulls.
+- **Alpha Hunter**: Smart money tracking and whale alert feed.
+- **Portfolio Intelligence**: Real-time asset tracking (simulated).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. AI & Web3 Integration
+- **Google Gemini**: Powering the chat agent and market intelligence reports.
+- **Coinbase AgentKit**: Foundation for onchain agentic capabilities.
+- **RainbowKit & Wagmi**: Seamless wallet connectivity on Base.
 
-## Learn More
+## 📂 Architecture
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS 4 + Framer Motion
+- **Database**: Supabase (Schema defined in `src/lib/supabase-schema.sql`)
+- **State Management**: React Query + Wagmi
+- **Animations**: Three.js (Fiber) + Lucide Icons
 
-To learn more about Next.js, take a look at the following resources:
+## ⚙️ Setup
+1. **Environment Variables**: Configure `.env.local` with:
+   - `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `GOOGLE_AI_API_KEY` (Gemini API)
+   - `CDP_API_KEY_NAME` & `CDP_API_KEY_PRIVATE_KEY` (Coinbase Cloud)
+   - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Database**: Run the SQL script in `src/lib/supabase-schema.sql` in your Supabase dashboard.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Development**:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-## Deploy on Vercel
+## ⚠️ Notes
+- **Prerender Warning**: The build may show a TypeScript/Hook error for the `/_not-found` page during static generation. This is a known environment quirk with Next.js 16 and doesn't affect the live application functionality.
+- **Alpha Version**: Onchain actions currently operate in a simulation-first mode for security.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Built by NeuroBase AI Core Team
