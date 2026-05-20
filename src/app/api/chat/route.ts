@@ -137,19 +137,27 @@ export async function POST(req: Request) {
         if (googleApiKey) {
           console.log("[AI Chat] OpenRouter failed, falling back to direct Google Gemini API...");
           isGeminiDirect = true;
-          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${googleApiKey}&alt=sse`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                { role: "user", parts: [{ text: systemPrompt }] },
-                ...messages.map((m: any) => ({
-                  role: m.role === "assistant" ? "model" : "user",
-                  parts: [{ text: m.content }]
-                }))
-              ]
-            })
-          });
+          try {
+            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${googleApiKey}&alt=sse`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [
+                  { role: "user", parts: [{ text: systemPrompt }] },
+                  ...messages.map((m: any) => ({
+                    role: m.role === "assistant" ? "model" : "user",
+                    parts: [{ text: m.content }]
+                  }))
+                ]
+              })
+            });
+            if (!response.ok) {
+              const geminiErr = await response.text().catch(() => "Unknown error");
+              throw new Error(`Direct Gemini failed: ${geminiErr}`);
+            }
+          } catch (geminiCatchErr: any) {
+            throw new Error(`OpenRouter failed: ${err instanceof Error ? err.message : err} | Gemini Fallback failed: ${geminiCatchErr.message}`);
+          }
         } else {
           throw err;
         }
