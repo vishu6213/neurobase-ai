@@ -99,104 +99,59 @@ export async function POST(req: Request) {
     - The JSON payload inside the <onchain_action> tag must be valid and contain exactly the fields listed above.`;
 
     const openRouterKey = process.env.OPENROUTER_API_KEY?.replace(/^["']|["']$/g, '');
-    const googleApiKey = process.env.GOOGLE_AI_API_KEY?.replace(/^["']|["']$/g, '');
 
+    if (!openRouterKey) {
+      throw new Error("No valid OpenRouter API key found. Please set OPENROUTER_API_KEY.");
+    }
+
+    const openRouterModels = [
+      "google/gemini-2.0-flash-001",
+      "meta-llama/llama-3.3-70b-instruct"
+    ];
     let response: Response = null as any;
-    let isGeminiDirect = false;
+    let lastErr: any = null;
+    let success = false;
 
-    if (openRouterKey) {
-      const openRouterModels = [
-        "google/gemini-2.0-flash-001",
-        "meta-llama/llama-3.3-70b-instruct"
-      ];
-      let lastErr: any = null;
-      let success = false;
+    for (const model of openRouterModels) {
+      try {
+        console.log(`[AI Chat] Attempting OpenRouter stream with model: ${model}...`);
+        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${openRouterKey}`,
+            "HTTP-Referer": "https://neurobase.ai",
+            "X-Title": "NeuroBase AI",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...messages.map((m: any) => ({
+                role: m.role,
+                content: m.content
+              }))
+            ],
+            stream: true,
+          }),
+        });
 
-      for (const model of openRouterModels) {
-        try {
-          console.log(`[AI Chat] Attempting OpenRouter stream with model: ${model}...`);
-          response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${openRouterKey}`,
-              "HTTP-Referer": "https://neurobase.ai",
-              "X-Title": "NeuroBase AI",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              model: model,
-              messages: [
-                { role: "system", content: systemPrompt },
-                ...messages.map((m: any) => ({
-                  role: m.role,
-                  content: m.content
-                }))
-              ],
-              stream: true,
-            }),
-          });
-
-          if (!response.ok) {
-            const errText = await response.text().catch(() => "Unknown error");
-            console.warn(`[AI Chat] OpenRouter model ${model} failed:`, errText);
-            throw new Error(`OpenRouter (${model}) failed: ${errText}`);
-          }
-
-          success = true;
-          break; // Exit loop on success
-        } catch (err) {
-          lastErr = err;
-          console.warn(`[AI Chat] Model ${model} encountered error, attempting next model...`);
+        if (!response.ok) {
+          const errText = await response.text().catch(() => "Unknown error");
+          console.warn(`[AI Chat] OpenRouter model ${model} failed:`, errText);
+          throw new Error(`OpenRouter (${model}) failed: ${errText}`);
         }
-      }
 
-      if (!success) {
-        if (googleApiKey) {
-          console.log("[AI Chat] All OpenRouter models failed, falling back to direct Google Gemini API...");
-          isGeminiDirect = true;
-          try {
-            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${googleApiKey}&alt=sse`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [
-                  { role: "user", parts: [{ text: systemPrompt }] },
-                  ...messages.map((m: any) => ({
-                    role: m.role === "assistant" ? "model" : "user",
-                    parts: [{ text: m.content }]
-                  }))
-                ]
-              })
-            });
-            if (!response.ok) {
-              const geminiErr = await response.text().catch(() => "Unknown error");
-              throw new Error(`Direct Gemini failed: ${geminiErr}`);
-            }
-          } catch (geminiCatchErr: any) {
-            throw new Error(`OpenRouter failed: ${lastErr instanceof Error ? lastErr.message : lastErr} | Gemini Fallback failed: ${geminiCatchErr.message}`);
-          }
-        } else {
-          throw lastErr;
-        }
+        success = true;
+        break; // Exit loop on success
+      } catch (err) {
+        lastErr = err;
+        console.warn(`[AI Chat] Model ${model} encountered error, attempting next model...`);
       }
-    } else if (googleApiKey) {
-      console.log("[AI Chat] OpenRouter Key missing, using direct Google Gemini API...");
-      isGeminiDirect = true;
-      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${googleApiKey}&alt=sse`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            { role: "user", parts: [{ text: systemPrompt }] },
-            ...messages.map((m: any) => ({
-              role: m.role === "assistant" ? "model" : "user",
-              parts: [{ text: m.content }]
-            }))
-          ]
-        })
-      });
-    } else {
-      throw new Error("No valid AI API keys found. Please set OPENROUTER_API_KEY or GOOGLE_AI_API_KEY.");
+    }
+
+    if (!success) {
+      throw lastErr || new Error("Failed to get response from OpenRouter models.");
     }
 
     if (!response.ok) {
@@ -229,12 +184,7 @@ export async function POST(req: Request) {
               if (cleanLine.startsWith("data: ")) {
                 try {
                   const json = JSON.parse(cleanLine.substring(6));
-                  let content = "";
-                  if (isGeminiDirect) {
-                    content = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                  } else {
-                    content = json.choices?.[0]?.delta?.content || "";
-                  }
+                  const content = json.choices?.[0]?.delta?.content || "";
                   if (content) {
                     controller.enqueue(encoder.encode(content));
                   }
