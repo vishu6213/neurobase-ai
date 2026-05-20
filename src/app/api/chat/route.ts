@@ -101,41 +101,58 @@ export async function POST(req: Request) {
     const openRouterKey = process.env.OPENROUTER_API_KEY?.replace(/^["']|["']$/g, '');
     const googleApiKey = process.env.GOOGLE_AI_API_KEY?.replace(/^["']|["']$/g, '');
 
-    let response: Response;
+    let response: Response = null as any;
     let isGeminiDirect = false;
 
     if (openRouterKey) {
-      try {
-        console.log("[AI Chat] Attempting OpenRouter stream...");
-        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${openRouterKey}`,
-            "HTTP-Referer": "https://neurobase.ai",
-            "X-Title": "NeuroBase AI",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.0-flash-001",
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...messages.map((m: any) => ({
-                role: m.role,
-                content: m.content
-              }))
-            ],
-            stream: true,
-          }),
-        });
+      const openRouterModels = [
+        "google/gemini-2.0-flash-001",
+        "meta-llama/llama-3.3-70b-instruct"
+      ];
+      let lastErr: any = null;
+      let success = false;
 
-        if (!response.ok) {
-          const errText = await response.text().catch(() => "Unknown error");
-          console.warn("[AI Chat] OpenRouter call failed:", errText);
-          throw new Error(`OpenRouter failed: ${errText}`);
+      for (const model of openRouterModels) {
+        try {
+          console.log(`[AI Chat] Attempting OpenRouter stream with model: ${model}...`);
+          response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${openRouterKey}`,
+              "HTTP-Referer": "https://neurobase.ai",
+              "X-Title": "NeuroBase AI",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                { role: "system", content: systemPrompt },
+                ...messages.map((m: any) => ({
+                  role: m.role,
+                  content: m.content
+                }))
+              ],
+              stream: true,
+            }),
+          });
+
+          if (!response.ok) {
+            const errText = await response.text().catch(() => "Unknown error");
+            console.warn(`[AI Chat] OpenRouter model ${model} failed:`, errText);
+            throw new Error(`OpenRouter (${model}) failed: ${errText}`);
+          }
+
+          success = true;
+          break; // Exit loop on success
+        } catch (err) {
+          lastErr = err;
+          console.warn(`[AI Chat] Model ${model} encountered error, attempting next model...`);
         }
-      } catch (err) {
+      }
+
+      if (!success) {
         if (googleApiKey) {
-          console.log("[AI Chat] OpenRouter failed, falling back to direct Google Gemini API...");
+          console.log("[AI Chat] All OpenRouter models failed, falling back to direct Google Gemini API...");
           isGeminiDirect = true;
           try {
             response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${googleApiKey}&alt=sse`, {
@@ -156,10 +173,10 @@ export async function POST(req: Request) {
               throw new Error(`Direct Gemini failed: ${geminiErr}`);
             }
           } catch (geminiCatchErr: any) {
-            throw new Error(`OpenRouter failed: ${err instanceof Error ? err.message : err} | Gemini Fallback failed: ${geminiCatchErr.message}`);
+            throw new Error(`OpenRouter failed: ${lastErr instanceof Error ? lastErr.message : lastErr} | Gemini Fallback failed: ${geminiCatchErr.message}`);
           }
         } else {
-          throw err;
+          throw lastErr;
         }
       }
     } else if (googleApiKey) {
