@@ -97,7 +97,9 @@ const PrismaHero = ({ isBackgroundOnly = false }: { isBackgroundOnly?: boolean }
           loop
           muted
           playsInline
+          preload="auto"
           className="absolute inset-0 h-full w-full object-cover"
+          style={{ background: "radial-gradient(circle at center, #0f172a 0%, #020617 100%)" }}
         >
           <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4" type="video/mp4" />
           <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-circuit-board-background-441-large.mp4" type="video/mp4" />

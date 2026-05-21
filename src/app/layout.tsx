@@ -31,11 +31,24 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://prod.spline.design" />
         <link rel="preconnect" href="https://prod.spline.design" crossOrigin="anonymous" />
         
+        {/* Preconnect to the Cloudfront video distribution network */}
+        <link rel="dns-prefetch" href="https://d8j0ntlcm91z4.cloudfront.net" />
+        <link rel="preconnect" href="https://d8j0ntlcm91z4.cloudfront.net" crossOrigin="anonymous" />
+        
         {/* Preload first slide Spline scene binary immediately to bypass JS waterfall */}
         <link
           rel="preload"
           href="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
           as="fetch"
+          crossOrigin="anonymous"
+        />
+        
+        {/* Preload overview dashboard background video early to display instantly on login */}
+        <link
+          rel="preload"
+          href="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4"
+          as="video"
+          type="video/mp4"
           crossOrigin="anonymous"
         />
       </head>

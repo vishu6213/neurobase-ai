@@ -6,6 +6,9 @@ import { ArrowRight, Bot, Zap, Shield, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { WalletButton } from "@/components/wallet-button";
 import { Magnetic } from "@/components/ui/magnetic";
+import { useAccount } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useRouter } from "next/navigation";
 
 const statsData = [
   { value: "12,400+", label: "Active Agents",       icon: Bot },
@@ -23,6 +26,22 @@ const taglines = [
 
 export function HeroSection() {
   const [count, setCount] = useState(0);
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const router = useRouter();
+
+  const handleLaunchTerminal = (e: React.MouseEvent) => {
+    if (!isConnected) {
+      if (openConnectModal) {
+        openConnectModal();
+      } else {
+        router.push("/dashboard");
+      }
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   useEffect(() => {
     const t = setInterval(() => setCount((c) => (c + 1) % 4), 3000);
     return () => clearInterval(t);
@@ -98,19 +117,18 @@ export function HeroSection() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-5 items-center justify-center">
           <Magnetic>
-            <Link href="/dashboard">
-              <motion.button
-                whileHover={{ scale: 1.06 }}
-                whileTap={{ scale: 0.95 }}
-                className="h-16 px-12 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 text-black"
-                style={{
-                  background: 'linear-gradient(135deg, #FFD700, #FF8800)',
-                  boxShadow: '0 0 60px rgba(255,215,0,0.45), 0 8px 32px rgba(0,0,0,0.4)',
-                }}
-              >
-                Launch Terminal <ArrowRight className="w-5 h-5" />
-              </motion.button>
-            </Link>
+            <motion.button
+              onClick={handleLaunchTerminal}
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.95 }}
+              className="h-16 px-12 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 text-black"
+              style={{
+                background: 'linear-gradient(135deg, #FFD700, #FF8800)',
+                boxShadow: '0 0 60px rgba(255,215,0,0.45), 0 8px 32px rgba(0,0,0,0.4)',
+              }}
+            >
+              Launch Terminal <ArrowRight className="w-5 h-5" />
+            </motion.button>
           </Magnetic>
           <Magnetic>
             <WalletButton />

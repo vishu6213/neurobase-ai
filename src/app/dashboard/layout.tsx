@@ -13,7 +13,7 @@ import {
   Globe
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,12 +35,19 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const { isConnected } = useAccount();
+  const { isConnected, isConnecting, isReconnecting } = useAccount();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mounted && !isConnected && !isConnecting && !isReconnecting) {
+      router.push("/");
+    }
+  }, [mounted, isConnected, isConnecting, isReconnecting, router]);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -89,7 +96,7 @@ export default function DashboardLayout({
 
         {/* Scrollable Area - Now uses root scroll */}
         <div className="pt-20 p-10 relative pb-40 min-h-[calc(100vh-5rem)]">
-          {!mounted ? (
+          {!mounted || isConnecting || isReconnecting ? (
             <div className="flex items-center justify-center h-[60vh]">
                <div className="w-12 h-12 rounded-full border-2 border-yellow-500/20 border-t-yellow-500 animate-spin" />
             </div>

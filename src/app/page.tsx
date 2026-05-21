@@ -12,8 +12,25 @@ import { FAQSection } from "@/components/landing/faq-section";
 import { CTASection } from "@/components/landing/cta-section";
 import { Footer } from "@/components/landing/footer";
 import { SplineRobotBackground } from "@/components/spline-robot-background";
+import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
+import { useEffect, useState } from "react";
 
 export default function LandingPage() {
+  const { isConnected } = useAccount();
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && isConnected) {
+      router.push("/dashboard");
+    }
+  }, [mounted, isConnected, router]);
+
   return (
     <div className="min-h-screen bg-black text-white">
       <LandingNav />

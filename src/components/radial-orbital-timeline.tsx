@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { usePerformanceBudget } from "@/hooks/use-performance-budget";
 
 export interface TimelineItem {
   id: number;
@@ -28,6 +29,8 @@ export default function RadialOrbitalTimeline({
   timelineData,
   className,
 }: RadialOrbitalTimelineProps) {
+  const { isMobile } = usePerformanceBudget();
+  const [isVisible, setIsVisible] = useState(true);
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>(
     {}
   );
@@ -43,6 +46,18 @@ export default function RadialOrbitalTimeline({
   const containerRef = useRef<HTMLDivElement>(null);
   const orbitRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !containerRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === containerRef.current || e.target === orbitRef.current) {
@@ -87,18 +102,19 @@ export default function RadialOrbitalTimeline({
   };
 
   useEffect(() => {
+    if (isMobile || !isVisible) return;
     let requestRef: number;
 
     const animate = () => {
       if (autoRotate && viewMode === "orbital") {
-        setRotationAngle((prev) => (prev + 0.3) % 360);
+        setRotationAngle((prev) => (prev + 0.2) % 360);
       }
       requestRef = requestAnimationFrame(animate);
     };
 
     requestRef = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef);
-  }, [autoRotate, viewMode]);
+  }, [autoRotate, viewMode, isMobile, isVisible]);
 
   const centerViewOnNode = (nodeId: number) => {
     if (viewMode !== "orbital" || !nodeRefs.current[nodeId]) return;

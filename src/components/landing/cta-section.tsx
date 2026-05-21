@@ -4,6 +4,9 @@ import { motion } from "framer-motion";
 import { ArrowRight, Zap, Bot, Shield } from "lucide-react";
 import Link from "next/link";
 import { WalletButton } from "@/components/wallet-button";
+import { useAccount } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useRouter } from "next/navigation";
 
 const pillars = [
   { icon: Bot,    label: "AI Copilot",       color: "rgba(255,215,0,0.8)" },
@@ -12,6 +15,22 @@ const pillars = [
 ];
 
 export function CTASection() {
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const router = useRouter();
+
+  const handleLaunchTerminal = (e: React.MouseEvent) => {
+    if (!isConnected) {
+      if (openConnectModal) {
+        openConnectModal();
+      } else {
+        router.push("/dashboard");
+      }
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
   return (
     <section className="py-32 px-6 relative overflow-hidden">
       {/* Wide ambient glow */}
@@ -71,7 +90,7 @@ export function CTASection() {
               with confidence. Start free, no credit card required.
             </p>
 
-            {/* Feature pills */}
+            {/* Feature pillars */}
             <div className="flex items-center justify-center gap-4 mb-10 flex-wrap">
               {pillars.map((p, i) => (
                 <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full"
@@ -89,19 +108,18 @@ export function CTASection() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/dashboard">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 text-black"
-                  style={{
-                    background: 'linear-gradient(135deg, #FFD700, #FF8800)',
-                    boxShadow: '0 0 50px rgba(255,215,0,0.45)',
-                  }}
-                >
-                  Launch Terminal <ArrowRight className="w-4 h-4" />
-                </motion.button>
-              </Link>
+              <motion.button
+                onClick={handleLaunchTerminal}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center gap-3 text-black"
+                style={{
+                  background: 'linear-gradient(135deg, #FFD700, #FF8800)',
+                  boxShadow: '0 0 50px rgba(255,215,0,0.45)',
+                }}
+              >
+                Launch Terminal <ArrowRight className="w-4 h-4" />
+              </motion.button>
               <WalletButton />
             </div>
           </div>

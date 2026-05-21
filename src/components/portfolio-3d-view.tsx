@@ -2,6 +2,7 @@ import { useRef, useState, Suspense, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Float, MeshDistortMaterial, Stars, PerspectiveCamera, OrbitControls, Billboard, Text, Html } from "@react-three/drei";
+import { usePerformanceBudget } from "@/hooks/use-performance-budget";
 
 function SafeImage({ url, scale, symbol }: { url: string, scale: number, symbol: string }) {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
@@ -128,7 +129,17 @@ function AssetOrb({ logo, color, scale, speed, position, name, weight, symbol }:
 }
 
 export function Portfolio3DView({ items }: { items: any[] }) {
+  const { isMobile, isLowPower, mounted } = usePerformanceBudget();
+  const [activeToken, setActiveToken] = useState<any>(null);
+
   const validItems = items.filter(item => item && item.name);
+
+  // Set default active token once validItems are loaded
+  useEffect(() => {
+    if (validItems.length > 0 && !activeToken) {
+      setActiveToken(validItems[0]);
+    }
+  }, [validItems, activeToken]);
 
   // Curated list of reliable logo sources with proxy
   const getLogoUrl = (item: any) => {
@@ -143,6 +154,241 @@ export function Portfolio3DView({ items }: { items: any[] }) {
     // Default to the provided logo but proxy it for CORS and resizing
     return `${proxyBase}${encode(item.logo)}&w=128&h=128&fit=contain&mask=circle&bg=black`;
   };
+
+  if (mounted && (isMobile || isLowPower)) {
+    return (
+      <div className="h-[650px] w-full relative rounded-[2.5rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl flex flex-col">
+        {/* Dynamic ambient color background glow */}
+        <div 
+          className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--glow-color,rgba(255,215,0,0.05))_0%,transparent_75%)] transition-all duration-700 pointer-events-none" 
+          style={{ 
+            '--glow-color': activeToken ? `${activeToken.color}15` : 'rgba(255,215,0,0.05)'
+          } as React.CSSProperties}
+        />
+        
+        {/* Fine matrix grid overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none" 
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px)
+            `,
+            backgroundSize: '24px 24px'
+          }}
+        />
+
+        {/* Ambient floating blobs */}
+        <div className="absolute top-1/4 left-1/4 w-[250px] h-[250px] rounded-full bg-yellow-500/5 blur-[80px] animate-pulse pointer-events-none" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] rounded-full bg-red-600/5 blur-[80px] animate-pulse pointer-events-none" style={{ animationDuration: '12s' }} />
+
+        {/* Scrollable Center Content */}
+        <div className="flex-1 overflow-y-auto px-6 pt-32 pb-24 custom-scrollbar z-10 relative">
+          
+          {/* Active Token Feature Panel (sleek mobile detail display) */}
+          {activeToken && (
+            <div className="mb-6 p-5 rounded-2xl border border-white/10 bg-black/60 backdrop-blur-xl relative overflow-hidden transition-all duration-300">
+              <div 
+                className="absolute top-0 right-0 w-24 h-24 rounded-full blur-2xl pointer-events-none"
+                style={{ backgroundColor: `${activeToken.color}15` }}
+              />
+              
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0">
+                  <div 
+                    className="absolute inset-0 blur-md rounded-full animate-pulse"
+                    style={{ backgroundColor: activeToken.color }}
+                  />
+                  <img 
+                    src={getLogoUrl(activeToken)} 
+                    alt={activeToken.name}
+                    className="w-12 h-12 rounded-full border border-black bg-black relative z-10"
+                  />
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="w-1.5 h-1.5 rounded-full animate-ping"
+                      style={{ backgroundColor: activeToken.color }}
+                    />
+                    <span className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">
+                      ACTIVE SYNAPSE NODE
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-black text-white uppercase tracking-tight truncate mt-0.5">
+                    {activeToken.name}
+                  </h4>
+                </div>
+
+                <div className="text-right flex-shrink-0">
+                  <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">Weight</p>
+                  <p 
+                    className="text-2xl font-black tabular-nums tracking-tighter"
+                    style={{ color: activeToken.color }}
+                  >
+                    {activeToken.value}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Visual connections and metrics */}
+              <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-white/40">
+                  <span>Network Sync Bandwidth</span>
+                  <span className="text-white font-mono">{(activeToken.value * 1.5).toFixed(1)} Gb/s</span>
+                </div>
+                
+                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden p-[1px]">
+                  <div 
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${activeToken.value}%`,
+                      backgroundImage: `linear-gradient(to right, ${activeToken.color}, #ff2200)`
+                    }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="p-2 rounded-xl bg-white/[0.01] border border-white/5">
+                    <p className="text-[8px] font-black text-white/20 uppercase tracking-wider">Node Status</p>
+                    <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mt-0.5">Connected</p>
+                  </div>
+                  <div className="p-2 rounded-xl bg-white/[0.01] border border-white/5">
+                    <p className="text-[8px] font-black text-white/20 uppercase tracking-wider">Stability</p>
+                    <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mt-0.5">
+                      {(90 + (activeToken.value % 10)).toFixed(2)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Scrollable grid list of nodes */}
+          <div className="grid grid-cols-1 gap-2.5">
+            {validItems.map((item, i) => {
+              const isActive = activeToken?.symbol === item.symbol;
+              return (
+                <div 
+                  key={i}
+                  onClick={() => setActiveToken(item)}
+                  className={`flex items-center justify-between p-3.5 rounded-xl border transition-all duration-300 cursor-pointer ${
+                    isActive 
+                      ? 'bg-white/[0.03] border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.02)]' 
+                      : 'bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.02]'
+                  }`}
+                  style={{
+                    boxShadow: isActive ? `0 0 15px ${item.color}15` : 'none',
+                    borderColor: isActive ? item.color : 'rgba(255,255,255,0.05)'
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      {isActive && (
+                        <div 
+                          className="absolute inset-0 blur-sm rounded-full animate-pulse"
+                          style={{ backgroundColor: item.color }}
+                        />
+                      )}
+                      <img 
+                        src={getLogoUrl(item)} 
+                        alt={item.name}
+                        className="w-9 h-9 rounded-full border border-black bg-black relative z-10"
+                      />
+                    </div>
+
+                    <div>
+                      <h5 className="text-xs font-black text-white uppercase tracking-wider">
+                        {item.name}
+                      </h5>
+                      <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">
+                        {item.symbol} Node
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 hidden xs:block">
+                      <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full rounded-full" 
+                          style={{ 
+                            width: `${item.value}%`,
+                            backgroundColor: item.color 
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span 
+                        className="text-xs font-black tabular-nums"
+                        style={{ color: item.color }}
+                      >
+                        {item.value}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+
+        {/* Decorative Overlay Header */}
+        <div className="absolute top-10 left-10 right-10 pointer-events-none flex justify-between items-start z-20">
+          <div>
+            <div className="flex items-center gap-4 mb-2">
+              <div className="flex -space-x-2">
+                {validItems.slice(0, 3).map((item, i) => (
+                  <div key={i} className="relative">
+                    <img src={getLogoUrl(item)} className="w-6 h-6 rounded-full border border-black bg-black relative z-10" />
+                  </div>
+                ))}
+              </div>
+              <div className="h-4 w-px bg-white/10" />
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-yellow-500 animate-pulse">Matrix 2D Connected</span>
+              </div>
+            </div>
+            <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">Spatial Matrix</h3>
+          </div>
+        </div>
+
+        {/* Decorative Overlay Footer */}
+        <div className="absolute bottom-10 left-10 right-10 pointer-events-none flex justify-between items-center z-20">
+          <div>
+            <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">Active Nodes</p>
+            <p className="text-xl font-black text-white tabular-nums tracking-tighter">{validItems.length}</p>
+          </div>
+          <div className="glass px-4 py-2.5 rounded-xl border-white/5 bg-white/[0.02]">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping" />
+              <span className="text-[9px] font-black text-white uppercase tracking-widest">Mobile Optimized</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Custom scrollbar stylesheet */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.15);
+          }
+        `}} />
+      </div>
+    );
+  }
 
   return (
     <div className="h-[650px] w-full relative rounded-[2.5rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl cursor-crosshair">

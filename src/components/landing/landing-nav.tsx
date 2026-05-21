@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 import { Bot, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { WalletButton } from "@/components/wallet-button";
+import { useAccount } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useRouter } from "next/navigation";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -16,6 +19,21 @@ const navLinks = [
 export function LandingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const router = useRouter();
+
+  const handleDashboardClick = (e: React.MouseEvent) => {
+    if (!isConnected) {
+      if (openConnectModal) {
+        openConnectModal();
+      } else {
+        router.push("/dashboard");
+      }
+    } else {
+      router.push("/dashboard");
+    }
+  };
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -60,11 +78,12 @@ export function LandingNav() {
 
         {/* Right actions */}
         <div className="hidden md:flex items-center gap-4">
-          <Link href="/dashboard">
-            <button className="h-9 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-yellow-500/30 text-[11px] font-black text-white uppercase tracking-widest transition-all">
-              Dashboard
-            </button>
-          </Link>
+          <button 
+            onClick={handleDashboardClick}
+            className="h-9 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-yellow-500/30 text-[11px] font-black text-white uppercase tracking-widest transition-all"
+          >
+            Dashboard
+          </button>
           <WalletButton />
         </div>
 
@@ -95,11 +114,15 @@ export function LandingNav() {
             </a>
           ))}
           <div className="pt-4 border-t border-white/5 flex flex-col gap-3">
-            <Link href="/dashboard">
-              <button className="w-full h-12 rounded-xl bg-yellow-500 text-black font-black uppercase tracking-widest text-sm">
-                Launch Dashboard
-              </button>
-            </Link>
+            <button 
+              onClick={(e) => {
+                setMenuOpen(false);
+                handleDashboardClick(e);
+              }}
+              className="w-full h-12 rounded-xl bg-yellow-500 text-black font-black uppercase tracking-widest text-sm"
+            >
+              Launch Dashboard
+            </button>
           </div>
         </motion.div>
       )}

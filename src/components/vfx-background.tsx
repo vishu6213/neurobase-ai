@@ -3,6 +3,7 @@
 import { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { usePerformanceBudget } from "@/hooks/use-performance-budget";
 
 function Particles({ count = 150 }) {
   const points = useRef<THREE.Points>(null!);
@@ -45,6 +46,7 @@ function Particles({ count = 150 }) {
 }
 
 export function VFXBackground() {
+  const { isMobile, isLowPower } = usePerformanceBudget();
   const [mounted, setMounted] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
 
@@ -61,10 +63,12 @@ export function VFXBackground() {
 
   if (!mounted) return <div className="fixed inset-0 -z-10 bg-black" />;
 
-  if (!webglSupported) {
+  if (isMobile || isLowPower || !webglSupported) {
     return (
       <div className="fixed inset-0 -z-10 bg-black">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,215,0,0.03),transparent_80%)]" />
+        {/* Glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,215,0,0.04),rgba(220,38,38,0.01)_50%,transparent_100%)]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-95" />
       </div>
     );
   }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type * as THREE from 'three';
+import { usePerformanceBudget } from '@/hooks/use-performance-budget';
 
 /* ── NeuroBase floating stats ── */
 const STATS = [
@@ -253,6 +254,7 @@ function StatChip({ s, i }: { s: (typeof STATS)[0]; i: number }) {
 
 /* ── Main component ── */
 export function RobotBackground() {
+  const { isMobile, isLowPower } = usePerformanceBudget();
   const [shouldRender, setShouldRender] = useState(false);
   const [opacity, setOpacity] = useState(0);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -275,12 +277,78 @@ export function RobotBackground() {
 
   /* Three.js lifecycle */
   useEffect(() => {
+    if (isMobile || isLowPower) return;
     if (!shouldRender || !canvasRef.current) return;
     const ctrl = new AbortController();
     let destroy: (() => void) | null = null;
     initScene(canvasRef.current, ctrl.signal).then((fn) => { destroy = fn; });
     return () => { ctrl.abort(); destroy?.(); };
-  }, [shouldRender]);
+  }, [shouldRender, isMobile, isLowPower]);
+
+  if (isMobile || isLowPower) {
+    return (
+      <>
+        <style>{`
+          @keyframes nbFloat {
+            from { transform: translateY(0px)   translateX(0px); }
+            to   { transform: translateY(-16px) translateX(8px); }
+          }
+        `}</style>
+
+        <div ref={sentinelRef} aria-hidden="true" />
+
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 0,
+            pointerEvents: 'none',
+            opacity,
+            transition: 'opacity 0.7s cubic-bezier(0.4,0,0.2,1)',
+            willChange: 'opacity',
+            transform: 'translateZ(0)',
+            background: '#000',
+          }}
+        >
+          {/* Glowing radial gold-tinted core */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 1,
+            background: 'radial-gradient(circle at 50% 40%, rgba(255,215,0,0.08) 0%, transparent 68%)'
+          }} />
+          {/* Glowing deep red accent */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 1,
+            background: 'radial-gradient(circle at 20% 80%, rgba(220,38,38,0.05) 0%, transparent 60%)'
+          }} />
+          {/* Subtle grid pattern overlay */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 1,
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+            opacity: 0.4
+          }} />
+
+          {/* Floating NeuroBase stats */}
+          {STATS.map((s, i) => <StatChip key={i} s={s} i={i} />)}
+
+          {/* Edge vignette — blends robot into black bg */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 2,
+            background: 'radial-gradient(ellipse 88% 88% at 50% 50%, transparent 28%, rgba(0,0,0,0.9) 100%)',
+          }} />
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 2,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 18%, transparent 80%, rgba(0,0,0,0.75) 100%)',
+          }} />
+
+          {/* NeuroBase gold tint */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 2, mixBlendMode: 'screen',
+            background: 'radial-gradient(ellipse 50% 50% at 55% 44%, rgba(255,215,0,0.07) 0%, transparent 60%)',
+          }} />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
