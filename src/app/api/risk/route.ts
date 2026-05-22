@@ -34,22 +34,62 @@ async function getOpenRouterResponse(prompt: string) {
     openRouterKey = getEnvKeyFallback();
   }
 
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${openRouterKey}`,
-      "HTTP-Referer": "https://neurobase.ai",
-      "X-Title": "NeuroBase AI",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.0-flash-001",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" }
-    }),
-  });
+  const openRouterModels = [
+    "google/gemini-2.0-flash-001",
+    "openai/gpt-4o-mini",
+    "meta-llama/llama-3.3-70b-instruct",
+    "google/gemini-2.5-flash",
+    "mistralai/mistral-7b-instruct:free"
+  ];
+  let response: Response = null as any;
+  let lastErr: any = null;
+  let success = false;
 
-  if (!response.ok) throw new Error("OpenRouter request failed");
+  for (const model of openRouterModels) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7000); // 7-second timeout per model
+    
+    try {
+      console.log(`[Risk API] Attempting OpenRouter call with model: ${model}...`);
+      response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+          "Authorization": `Bearer ${openRouterKey}`,
+          "HTTP-Referer": "https://neurobase.ai",
+          "X-Title": "NeuroBase AI",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [{ role: "user", content: prompt }],
+          response_format: { type: "json_object" }
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errText = await response.text().catch(() => "Unknown error");
+        console.warn(`[Risk API] OpenRouter model ${model} failed:`, errText);
+        throw new Error(`OpenRouter (${model}) failed: ${errText}`);
+      }
+
+      success = true;
+      break; // Exit loop on success
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      lastErr = err;
+      const errMsg = err.name === 'AbortError' ? 'Timeout' : err.message;
+      console.warn(`[Risk API] Model ${model} failed (${errMsg}), attempting next model...`);
+    }
+  }
+
+  if (!success) {
+    throw lastErr || new Error("Failed to get response from OpenRouter models.");
+  }
+
   const data = await response.json();
   return data.choices[0].message.content;
 }

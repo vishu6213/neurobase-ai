@@ -135,17 +135,24 @@ export async function POST(req: Request) {
 
     const openRouterModels = [
       "google/gemini-2.0-flash-001",
-      "meta-llama/llama-3.3-70b-instruct"
+      "openai/gpt-4o-mini",
+      "meta-llama/llama-3.3-70b-instruct",
+      "google/gemini-2.5-flash",
+      "mistralai/mistral-7b-instruct:free"
     ];
     let response: Response = null as any;
     let lastErr: any = null;
     let success = false;
 
     for (const model of openRouterModels) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7000); // 7-second timeout per model
+      
       try {
         console.log(`[AI Chat] Attempting OpenRouter stream with model: ${model}...`);
         response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
+          cache: "no-store",
           headers: {
             "Authorization": `Bearer ${openRouterKey}`,
             "HTTP-Referer": "https://neurobase.ai",
@@ -163,7 +170,10 @@ export async function POST(req: Request) {
             ],
             stream: true,
           }),
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           const errText = await response.text().catch(() => "Unknown error");
@@ -173,9 +183,11 @@ export async function POST(req: Request) {
 
         success = true;
         break; // Exit loop on success
-      } catch (err) {
+      } catch (err: any) {
+        clearTimeout(timeoutId);
         lastErr = err;
-        console.warn(`[AI Chat] Model ${model} encountered error, attempting next model...`);
+        const errMsg = err.name === 'AbortError' ? 'Timeout' : err.message;
+        console.warn(`[AI Chat] Model ${model} failed (${errMsg}), attempting next model...`);
       }
     }
 
