@@ -40,6 +40,22 @@ export default function RadialOrbitalTimeline({
     y: 0,
   });
   const [activeNodeId, setActiveNodeId] = useState<number | null>(null);
+  const [radius, setRadius] = useState<number>(200);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window === "undefined") return;
+      const r = window.innerWidth < 640 
+        ? Math.max(90, Math.min(130, window.innerWidth * 0.3)) 
+        : window.innerWidth < 768
+        ? Math.max(130, Math.min(160, window.innerWidth * 0.28))
+        : 200;
+      setRadius(r);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const containerRef = useRef<HTMLDivElement>(null);
   const orbitRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -130,7 +146,6 @@ export default function RadialOrbitalTimeline({
 
   const calculateNodePosition = (index: number, total: number) => {
     const angle = ((index / total) * 360 + rotationAngle) % 360;
-    const radius = 200; // Adjusted radius for better spacing
     const radian = (angle * Math.PI) / 180;
 
     const x = radius * Math.cos(radian) + centerOffset.x;
@@ -185,18 +200,53 @@ export default function RadialOrbitalTimeline({
           }}
         >
           {/* Central Core */}
-          <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-yellow-500/40 via-red-500/40 to-purple-500/40 animate-pulse flex items-center justify-center z-10 backdrop-blur-xl border border-white/10">
-            <div className="absolute w-32 h-32 rounded-full border border-white/5 animate-ping opacity-30"></div>
-            <div
-              className="absolute w-40 h-40 rounded-full border border-white/5 animate-ping opacity-20"
-              style={{ animationDelay: "0.5s" }}
+          <div 
+            className="absolute rounded-full bg-gradient-to-br from-yellow-500/40 via-red-500/40 to-purple-500/40 animate-pulse flex items-center justify-center z-10 backdrop-blur-xl border border-white/10 transition-all duration-300"
+            style={{
+              width: `${radius * 0.48}px`,
+              height: `${radius * 0.48}px`
+            }}
+          >
+            <div 
+              className="absolute rounded-full border border-white/5 animate-ping opacity-30"
+              style={{
+                width: `${radius * 0.64}px`,
+                height: `${radius * 0.64}px`
+              }}
             ></div>
-            <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] text-center">Neural<br/>Core</div>
+            <div
+              className="absolute rounded-full border border-white/5 animate-ping opacity-20"
+              style={{ 
+                animationDelay: "0.5s",
+                width: `${radius * 0.8}px`,
+                height: `${radius * 0.8}px`
+              }}
+            ></div>
+            <div className="text-[8px] sm:text-[10px] font-black text-white/40 uppercase tracking-[0.2em] text-center leading-tight">Neural<br/>Core</div>
           </div>
 
           {/* Orbital Rings */}
-          <div className="absolute w-[480px] h-[480px] rounded-full border border-white/5 pointer-events-none"></div>
-          <div className="absolute w-[520px] h-[520px] rounded-full border border-white/5 opacity-30 pointer-events-none"></div>
+          <div 
+            className="absolute rounded-full border border-dashed border-white/10 pointer-events-none transition-all duration-300"
+            style={{
+              width: `${radius * 2}px`,
+              height: `${radius * 2}px`
+            }}
+          />
+          <div 
+            className="absolute rounded-full border border-white/5 pointer-events-none transition-all duration-300"
+            style={{
+              width: `${radius * 2.4}px`,
+              height: `${radius * 2.4}px`
+            }}
+          />
+          <div 
+            className="absolute rounded-full border border-white/5 opacity-30 pointer-events-none transition-all duration-300"
+            style={{
+              width: `${radius * 2.6}px`,
+              height: `${radius * 2.6}px`
+            }}
+          />
 
           {timelineData.map((item, index) => {
             const position = calculateNodePosition(index, timelineData.length);
@@ -235,7 +285,7 @@ export default function RadialOrbitalTimeline({
                 {/* Node Orb */}
                 <div
                   className={`
-                  w-14 h-14 rounded-full flex items-center justify-center overflow-hidden
+                  w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center overflow-hidden
                   ${
                     isExpanded
                       ? "bg-white text-black scale-125"
@@ -255,17 +305,17 @@ export default function RadialOrbitalTimeline({
                 `}
                 >
                   {item.logo ? (
-                    <img src={item.logo} alt={item.title} className="w-full h-full object-cover" />
+                    <img src={item.logo} alt={item.title} className="w-full h-full object-cover animate-in fade-in" />
                   ) : (
-                    <Icon size={24} />
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                   )}
                 </div>
 
                 {/* Label */}
                 <div
                   className={`
-                  absolute top-16 left-1/2 -translate-x-1/2 whitespace-nowrap
-                  text-[10px] font-black tracking-[0.2em] uppercase
+                  absolute top-12 sm:top-16 left-1/2 -translate-x-1/2 whitespace-nowrap
+                  text-[8px] sm:text-[10px] font-black tracking-[0.2em] uppercase
                   transition-all duration-300
                   ${isExpanded ? "text-yellow-500 scale-110" : "text-white/40"}
                 `}
@@ -273,8 +323,8 @@ export default function RadialOrbitalTimeline({
                   {item.title}
                 </div>
 
-                {/* Card UI */}
-                {isExpanded && (
+                {/* Card UI (Desktop Only) */}
+                {!isMobile && isExpanded && (
                   <Card className="absolute top-24 left-1/2 -translate-x-1/2 w-72 bg-black/95 backdrop-blur-3xl border-white/10 shadow-2xl overflow-visible z-[600]">
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-px h-4 bg-yellow-500/50"></div>
                     <CardHeader className="pb-2">
@@ -357,6 +407,104 @@ export default function RadialOrbitalTimeline({
           })}
         </div>
       </div>
+
+      {/* Mobile Glassmorphism Backdrop Overlay */}
+      {isMobile && activeNodeId !== null && expandedItems[activeNodeId] && (
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[550] transition-all duration-300 animate-in fade-in"
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpandedItems({});
+            setActiveNodeId(null);
+            setAutoRotate(true);
+            setPulseEffect({});
+          }}
+        />
+      )}
+
+      {/* Mobile Card UI (Centered Modal Overlay) */}
+      {isMobile && activeNodeId !== null && (() => {
+        const item = timelineData.find((i) => i.id === activeNodeId);
+        if (!item || !expandedItems[item.id]) return null;
+        const Icon = item.icon as any;
+        return (
+          <Card className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[88%] max-w-[320px] bg-black/95 backdrop-blur-3xl border border-white/10 shadow-2xl overflow-visible z-[600] animate-in fade-in zoom-in-95 duration-300">
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-center">
+                <Badge
+                  variant="outline"
+                  className={`px-2 py-0 h-5 text-[8px] font-black ${getStatusStyles(
+                    item.status
+                  )}`}
+                >
+                  {item.status.toUpperCase()}
+                </Badge>
+                <span className="text-[9px] font-black text-white/30 tracking-widest">
+                  {item.date}
+                </span>
+              </div>
+              <CardTitle className="text-lg font-black tracking-tighter text-white mt-2">
+                {item.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-white/60 space-y-4">
+              <p className="leading-relaxed">{item.content}</p>
+
+              <div className="pt-4 border-t border-white/5">
+                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest mb-2">
+                  <span className="flex items-center gap-1 text-white/40">
+                    <Zap size={10} className="text-yellow-500" />
+                    Holding Weight
+                  </span>
+                  <span className="text-yellow-500">{item.energy}%</span>
+                </div>
+                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden p-[1px]">
+                  <div
+                    className="h-full bg-gradient-to-r from-yellow-500 to-red-600 rounded-full"
+                    style={{ width: `${item.energy}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {item.relatedIds.length > 0 && (
+                <div className="pt-4 border-t border-white/5">
+                  <div className="flex items-center mb-3">
+                    <Link size={10} className="text-white/20 mr-2" />
+                    <h4 className="text-[8px] uppercase tracking-[0.3em] font-black text-white/20">
+                      Connected Assets
+                    </h4>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {item.relatedIds.map((relatedId) => {
+                      const relatedItem = timelineData.find(
+                        (i) => i.id === relatedId
+                      );
+                      return (
+                        <Button
+                          key={relatedId}
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-3 text-[9px] font-black rounded-xl border-white/5 bg-white/[0.02] hover:bg-white/10 text-white/40 hover:text-white transition-all uppercase tracking-widest"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleItem(relatedId);
+                          }}
+                        >
+                          {relatedItem?.title}
+                          <ArrowRight
+                            size={10}
+                            className="ml-2 text-white/20"
+                          />
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
     </div>
   );
 }

@@ -92,19 +92,19 @@ const PrismaHero = ({ isBackgroundOnly = false }: { isBackgroundOnly?: boolean }
       <div className={isBackgroundOnly ? "relative h-full w-full overflow-hidden" : "relative h-full w-full overflow-hidden rounded-2xl md:rounded-[2rem]"}>
 
         {/* Background video - Multi-source fallback for reliability */}
+        <div className="absolute inset-0 h-full w-full bg-[radial-gradient(circle_at_center,#0f172a_0%,#020617_100%)] -z-10" />
         <video
           autoPlay
           loop
           muted
           playsInline
           preload="auto"
-          className="absolute inset-0 h-full w-full object-cover hidden md:block"
+          className="absolute inset-0 h-full w-full object-cover"
           style={{ background: "radial-gradient(circle at center, #0f172a 0%, #020617 100%)" }}
         >
           <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4" type="video/mp4" />
           <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-circuit-board-background-441-large.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 h-full w-full md:hidden bg-[radial-gradient(circle_at_center,#0f172a_0%,#020617_100%)]" />
 
         {/* High-Fidelity Overlays - Reduced in background mode for crystal clear quality */}
         <div className={isBackgroundOnly ? "opacity-0" : "noise-overlay pointer-events-none absolute inset-0 opacity-[0.7] mix-blend-overlay"} />

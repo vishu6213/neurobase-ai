@@ -571,12 +571,12 @@ export default function MarketAnalysisPage() {
                        <table className="w-full text-left">
                           <thead>
                              <tr className="text-[10px] font-bold text-white/40 uppercase tracking-wider border-b border-white/5 bg-white/[0.02]">
-                                <th className="px-6 py-4 font-medium">Asset Node</th>
-                                <th className="px-6 py-4 text-right font-medium">Matrix Value</th>
-                                <th className="px-6 py-4 text-right font-medium">24H Vector</th>
-                                <th className="px-6 py-4 text-center font-medium">Neural Signal</th>
-                                <th className="px-6 py-4 text-right font-medium hidden sm:table-cell">Liquidity Pool</th>
-                                <th className="px-6 py-4 text-right font-medium hidden sm:table-cell">Trajectory</th>
+                                <th className="px-3 sm:px-6 py-3.5 sm:py-4 font-medium">Asset Node</th>
+                                <th className="px-3 sm:px-6 py-3.5 sm:py-4 text-right font-medium">Matrix Value</th>
+                                <th className="px-3 sm:px-6 py-3.5 sm:py-4 text-right font-medium hidden sm:table-cell">24H Vector</th>
+                                <th className="px-3 sm:px-6 py-3.5 sm:py-4 text-center font-medium">Neural Signal</th>
+                                <th className="px-3 sm:px-6 py-3.5 sm:py-4 text-right font-medium hidden sm:table-cell">Liquidity Pool</th>
+                                <th className="px-3 sm:px-6 py-3.5 sm:py-4 text-right font-medium hidden sm:table-cell">Trajectory</th>
                              </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5">
@@ -595,25 +595,34 @@ export default function MarketAnalysisPage() {
                                   onClick={() => setSelectedToken(token)}
                                   className="group hover:bg-white/[0.04] transition-colors cursor-pointer"
                                 >
-                                   <td className="px-6 py-4">
-                                      <div className="flex items-center gap-4">
-                                         <img src={token.logo} className="w-10 h-10 rounded-xl bg-black/20 border border-white/10 group-hover:scale-105 transition-transform" alt="" />
-                                         <div>
-                                            <p className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight">{token.symbol}</p>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                               <p className="text-[10px] text-white/40 truncate max-w-[100px]">{token.name}</p>
+                                   <td className="px-3 sm:px-6 py-3.5 sm:py-4">
+                                      <div className="flex items-center gap-2 sm:gap-4">
+                                         <img src={token.logo} className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-black/20 border border-white/10 group-hover:scale-105 transition-transform flex-shrink-0" alt="" />
+                                         <div className="min-w-0">
+                                            <p className="text-sm sm:text-base font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight truncate">{token.symbol}</p>
+                                            <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5">
+                                               <p className="text-[9px] sm:text-[10px] text-white/40 truncate max-w-[80px] sm:max-w-[100px]">{token.name}</p>
                                                <div className="w-1 h-1 rounded-full bg-white/10" />
-                                               <p className="text-[9px] font-bold text-emerald-500/70 uppercase tracking-wider">{token.network}</p>
+                                               <p className="text-[8px] sm:text-[9px] font-bold text-emerald-500/70 uppercase tracking-wider">{token.network}</p>
                                             </div>
                                          </div>
                                       </div>
                                    </td>
-                                   <td className="px-6 py-4 text-right">
+                                   <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-right">
                                       <p className="text-sm font-bold text-white tabular-nums">
                                         ${token.price < 0.00001 ? token.price.toFixed(8) : token.price < 1 ? token.price.toFixed(5) : token.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                       </p>
+                                      {/* Stacked change badge visible ONLY on mobile */}
+                                      <div className="sm:hidden mt-1 flex justify-end">
+                                         <span className={cn(
+                                            "inline-flex items-center text-[10px] font-bold tabular-nums",
+                                            token.change >= 0 ? "text-emerald-400" : "text-rose-400"
+                                         )}>
+                                            {token.change >= 0 ? "+" : ""}{token.change.toFixed(2)}%
+                                         </span>
+                                      </div>
                                    </td>
-                                   <td className="px-6 py-4 text-right">
+                                   <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-right hidden sm:table-cell">
                                       <div className={cn(
                                          "inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold tabular-nums border",
                                          token.change >= 0 ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" : "text-rose-400 bg-rose-500/10 border-rose-500/20"
@@ -621,9 +630,9 @@ export default function MarketAnalysisPage() {
                                          {token.change >= 0 ? "+" : ""}{token.change.toFixed(2)}%
                                       </div>
                                    </td>
-                                   <td className="px-6 py-4 text-center">
+                                   <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-center">
                                       <div className={cn(
-                                         "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider inline-block border",
+                                         "px-2 sm:px-3 py-1 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wider inline-block border",
                                          token.signal?.includes("STRONG_BUY") ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" :
                                          token.signal?.includes("BUY") ? "bg-emerald-500/5 text-emerald-500 border-emerald-500/10" :
                                          token.signal?.includes("SELL") ? "bg-rose-500/20 text-rose-400 border-rose-500/30" :
@@ -633,12 +642,12 @@ export default function MarketAnalysisPage() {
                                          {token.signal?.replace("_", " ")}
                                       </div>
                                    </td>
-                                   <td className="px-6 py-4 text-right hidden sm:table-cell">
+                                   <td className="px-3 sm:px-6 py-3.5 sm:py-4 text-right hidden sm:table-cell">
                                       <p className="text-sm text-white/60 tabular-nums font-medium">
                                         ${token.mcap > 1000000000 ? (token.mcap / 1000000000).toFixed(2) + "B" : (token.mcap / 1000000).toFixed(2) + "M"}
                                       </p>
                                    </td>
-                                   <td className="px-6 py-4 hidden sm:table-cell">
+                                   <td className="px-3 sm:px-6 py-3.5 sm:py-4 hidden sm:table-cell">
                                       <div className="h-10 w-24 ml-auto">
                                          {token.sparkline.length > 0 && (
                                             <ResponsiveContainer width="100%" height="100%">

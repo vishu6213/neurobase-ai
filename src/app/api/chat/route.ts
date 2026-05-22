@@ -1,8 +1,26 @@
 import { NextResponse } from "next/server";
 import { executeAgentAction } from "@/lib/agentkit-service";
+import fs from "fs";
+import path from "path";
 
 // Force this route to be dynamic
 export const dynamic = "force-dynamic";
+
+function getEnvKeyFallback(): string {
+  try {
+    const envLocalPath = path.join(process.cwd(), ".env.local");
+    if (fs.existsSync(envLocalPath)) {
+      const content = fs.readFileSync(envLocalPath, "utf-8");
+      const match = content.match(/^OPENROUTER_API_KEY\s*=\s*(.*)$/m);
+      if (match) {
+        return match[1].trim().replace(/^["']|["']$/g, '');
+      }
+    }
+  } catch (err) {
+    console.error("[AI Chat] Direct read of .env.local failed:", err);
+  }
+  return "";
+}
 
 export async function POST(req: Request) {
   try {
@@ -98,7 +116,10 @@ export async function POST(req: Request) {
     - Support symbols such as: ETH, USDC, DEGEN, AERO, WETH.
     - The JSON payload inside the <onchain_action> tag must be valid and contain exactly the fields listed above.`;
 
-    const openRouterKey = process.env.OPENROUTER_API_KEY?.replace(/^["']|["']$/g, '');
+    let openRouterKey = process.env.OPENROUTER_API_KEY?.replace(/^["']|["']$/g, '');
+    if (!openRouterKey) {
+      openRouterKey = getEnvKeyFallback();
+    }
 
     if (!openRouterKey) {
       throw new Error("No valid OpenRouter API key found. Please set OPENROUTER_API_KEY.");

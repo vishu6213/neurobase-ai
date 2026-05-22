@@ -240,7 +240,7 @@ export default function SignalsPage() {
   };
 
   return (
-    <div className="space-y-12 pb-20 relative">
+    <div className="space-y-12 pt-6 sm:pt-10 pb-48 relative">
       {/* Neural Background Grid */}
       <div className="fixed inset-0 pointer-events-none -z-10">
          <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f10_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f10_1px,transparent_1px)] bg-[size:24px_24px]"></div>

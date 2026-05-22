@@ -3,6 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Float, MeshDistortMaterial, Stars, PerspectiveCamera, OrbitControls, Billboard, Text, Html } from "@react-three/drei";
 import { usePerformanceBudget } from "@/hooks/use-performance-budget";
+import { Loader2 } from "lucide-react";
 
 function SafeImage({ url, scale, symbol }: { url: string, scale: number, symbol: string }) {
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
@@ -26,7 +27,7 @@ function SafeImage({ url, scale, symbol }: { url: string, scale: number, symbol:
   if (error || !texture) {
     return (
       <Billboard>
-        <Text fontSize={0.4} color="white" anchorX="center" anchorY="middle" font="/fonts/GeistMono-Bold.woff">
+        <Text fontSize={0.4} color="white" anchorX="center" anchorY="middle">
           {symbol}
         </Text>
       </Billboard>
@@ -131,6 +132,7 @@ function AssetOrb({ logo, color, scale, speed, position, name, weight, symbol }:
 export function Portfolio3DView({ items }: { items: any[] }) {
   const { isMobile, isLowPower, mounted } = usePerformanceBudget();
   const [activeToken, setActiveToken] = useState<any>(null);
+  const [webGLAvailable, setWebGLAvailable] = useState(true);
 
   const validItems = items.filter(item => item && item.name);
 
@@ -140,6 +142,20 @@ export function Portfolio3DView({ items }: { items: any[] }) {
       setActiveToken(validItems[0]);
     }
   }, [validItems, activeToken]);
+
+  // Check WebGL availability on mount
+  useEffect(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      const supportsGL = !!(
+        window.WebGLRenderingContext &&
+        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+      );
+      setWebGLAvailable(supportsGL);
+    } catch (e) {
+      setWebGLAvailable(false);
+    }
+  }, []);
 
   // Curated list of reliable logo sources with proxy
   const getLogoUrl = (item: any) => {
@@ -155,9 +171,23 @@ export function Portfolio3DView({ items }: { items: any[] }) {
     return `${proxyBase}${encode(item.logo)}&w=128&h=128&fit=contain&mask=circle&bg=black`;
   };
 
-  if (mounted && (isMobile || isLowPower)) {
+  if (!mounted) {
     return (
-      <div className="h-[650px] w-full relative rounded-[2.5rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl flex flex-col">
+      <div className="h-[500px] md:h-[650px] w-full relative rounded-[2.5rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl flex flex-col items-center justify-center gap-6">
+         <div className="w-24 h-24 rounded-full border-2 border-yellow-500/20 flex items-center justify-center animate-spin">
+            <Loader2 className="w-8 h-8 text-yellow-500" />
+         </div>
+         <div className="text-center">
+            <p className="text-lg font-black text-white uppercase tracking-widest animate-pulse">Initializing Spatial Matrix...</p>
+            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mt-2">Loading WebGL Environment</p>
+         </div>
+      </div>
+    );
+  }
+
+  if (mounted && (isMobile || isLowPower || !webGLAvailable)) {
+    return (
+      <div className="h-[500px] md:h-[650px] w-full relative rounded-[2.5rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl flex flex-col">
         {/* Dynamic ambient color background glow */}
         <div 
           className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--glow-color,rgba(255,215,0,0.05))_0%,transparent_75%)] transition-all duration-700 pointer-events-none" 
@@ -183,7 +213,7 @@ export function Portfolio3DView({ items }: { items: any[] }) {
         <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] rounded-full bg-red-600/5 blur-[80px] animate-pulse pointer-events-none" style={{ animationDuration: '12s' }} />
 
         {/* Scrollable Center Content */}
-        <div className="flex-1 overflow-y-auto px-6 pt-32 pb-24 custom-scrollbar z-10 relative">
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 pt-28 md:pt-32 pb-20 md:pb-24 custom-scrollbar z-10 relative">
           
           {/* Active Token Feature Panel (sleek mobile detail display) */}
           {activeToken && (
@@ -337,7 +367,7 @@ export function Portfolio3DView({ items }: { items: any[] }) {
         </div>
 
         {/* Decorative Overlay Header */}
-        <div className="absolute top-10 left-10 right-10 pointer-events-none flex justify-between items-start z-20">
+        <div className="absolute top-6 left-6 right-6 md:top-10 md:left-10 md:right-10 pointer-events-none flex justify-between items-start z-20">
           <div>
             <div className="flex items-center gap-4 mb-2">
               <div className="flex -space-x-2">
@@ -357,7 +387,7 @@ export function Portfolio3DView({ items }: { items: any[] }) {
         </div>
 
         {/* Decorative Overlay Footer */}
-        <div className="absolute bottom-10 left-10 right-10 pointer-events-none flex justify-between items-center z-20">
+        <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 md:right-10 pointer-events-none flex justify-between items-center z-20">
           <div>
             <p className="text-[8px] font-black text-white/20 uppercase tracking-widest">Active Nodes</p>
             <p className="text-xl font-black text-white tabular-nums tracking-tighter">{validItems.length}</p>
@@ -406,7 +436,7 @@ export function Portfolio3DView({ items }: { items: any[] }) {
               symbol={item.symbol}
               name={item.name}
               logo={getLogoUrl(item)}
-              color={item.color}
+              color={item.color || "#ffd700"}
               weight={item.value}
               scale={0.7 + (item.value / 100) * 4.5}
               speed={0.4 + i * 0.1}
@@ -436,7 +466,7 @@ export function Portfolio3DView({ items }: { items: any[] }) {
                {validItems.slice(0, 5).map((item, i) => (
                   <div key={i} className="relative">
                      <div className="absolute inset-0 bg-white/20 blur-sm rounded-full" />
-                     <img src={item.logo} className="w-8 h-8 rounded-full border-2 border-black bg-black relative z-10" />
+                     <img src={getLogoUrl(item)} className="w-8 h-8 rounded-full border-2 border-black bg-black relative z-10" />
                   </div>
                ))}
             </div>

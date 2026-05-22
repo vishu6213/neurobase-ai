@@ -200,6 +200,13 @@ export default function PortfolioPage() {
       logo: item.logo
    }));
 
+   const processedPortfolioItems = useMemo(() => {
+      return portfolioItems.map(item => ({
+         ...item,
+         value: totalValue > 0 ? Math.round((item.usdValue / totalValue) * 100) : 10
+      }));
+   }, [portfolioItems, totalValue]);
+
    const timelineData = portfolioItems
       .sort((a, b) => b.usdValue - a.usdValue)
       .slice(0, 5)
@@ -368,8 +375,8 @@ export default function PortfolioPage() {
                         {portfolioData.slice(0, 5).map((item, i) => (
                            <div key={i} className="flex items-center justify-between p-2 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group/item">
                               <div className="flex items-center gap-3">
-                                 <div className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.3)]" style={{ backgroundColor: item.color }} />
-                                 <span className="text-[10px] font-black text-white/60 uppercase tracking-tighter group-hover/item:text-white transition-colors">{item.name}</span>
+                                  <div className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.3)]" style={{ backgroundColor: item.color }} />
+                                  <span className="text-[10px] font-black text-white/60 uppercase tracking-tighter group-hover/item:text-white transition-colors">{item.name}</span>
                               </div>
                               <span className="text-xs font-black text-white tabular-nums">{item.value}%</span>
                            </div>
@@ -430,70 +437,49 @@ export default function PortfolioPage() {
             </div>
 
             <div className="lg:col-span-9 space-y-10">
-               {/* Upgraded Orbital Visualizer */}
-               <div className="relative group h-[350px] md:h-[650px] rounded-[1.5rem] md:rounded-[3rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500 to-red-600 rounded-[1.5rem] md:rounded-[3rem] blur-2xl opacity-10 group-hover:opacity-20 transition-opacity duration-1000" />
-                  <div className="absolute inset-0 z-10">
-                     <div className="absolute top-6 left-8 pointer-events-none z-20">
-                        <div className="flex items-center gap-4 mb-3">
-                           <div className="flex -space-x-2">
-                              {portfolioItems.length > 0 ? (
-                                 portfolioItems.slice(0, 5).map((item, i) => (
-                                    <div key={i} className="relative">
-                                       <div className="absolute inset-0 bg-white/10 blur-sm rounded-full" />
-                                       <img
-                                          src={item.logo}
-                                          className="w-6 h-6 rounded-full border border-black bg-black relative z-10"
-                                          alt={item.name}
-                                          onError={(e) => {
-                                             (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${item.symbol}&background=1a1a1a&color=facc15&bold=true`;
-                                          }}
-                                       />
-                                    </div>
-                                 ))
-                              ) : (
-                                 <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                                    <Wallet className="w-3 h-3 text-white/20" />
-                                 </div>
-                              )}
-                           </div>
-                           <div className="h-4 w-px bg-white/10" />
-                           <div className="flex flex-col">
-                              <span className="text-[8px] font-black uppercase tracking-[0.3em] text-yellow-500 animate-pulse">
-                                 {isConnected ? "Neural Sync: Online" : "Neural Grid Active"}
-                              </span>
-                           </div>
-                        </div>
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter liquid-text leading-tight">Spatial Matrix</h3>
-                        <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.2em] mt-1">
-                           {portfolioItems.length > 0 ? "Autonomous Asset Mesh" : loading ? "Syncing Nodes..." : "Grid Standby"}
-                        </p>
+               {/* Spatial Matrix Visualizer */}
+               {portfolioItems.length > 0 ? (
+                  <div className="relative h-[420px] sm:h-[550px] md:h-[650px] w-full rounded-[1.5rem] md:rounded-[3rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl flex items-center justify-center p-4">
+                     {/* Dynamic ambient color background glow */}
+                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,215,0,0.02)_0%,transparent_75%)] pointer-events-none" />
+                     {/* Fine matrix grid overlay */}
+                     <div 
+                        className="absolute inset-0 pointer-events-none opacity-20" 
+                        style={{
+                           backgroundImage: `
+                              linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px)
+                           `,
+                           backgroundSize: '24px 24px'
+                        }}
+                     />
+                     <div className="absolute top-4 left-6 md:top-8 md:left-10 pointer-events-none z-20">
+                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-yellow-500 animate-pulse">Matrix Sync Active</span>
+                        <h3 className="text-xl md:text-3xl font-black text-white uppercase tracking-tighter leading-none mt-1">Spatial Matrix</h3>
                      </div>
-                     {portfolioItems.length > 0 ? (
-                        <RadialOrbitalTimeline timelineData={timelineData} />
-                     ) : loading ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center gap-6">
-                           <div className="w-24 h-24 rounded-full border-2 border-yellow-500/20 flex items-center justify-center animate-spin">
-                              <Loader2 className="w-8 h-8 text-yellow-500" />
-                           </div>
-                           <div className="text-center">
-                              <p className="text-lg font-black text-white uppercase tracking-widest animate-pulse">Syncing Synapse Nodes...</p>
-                              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mt-2">Connecting to Base Grid v4.2.1</p>
-                           </div>
-                        </div>
-                     ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center gap-6">
-                           <div className="w-24 h-24 rounded-full border-2 border-white/5 flex items-center justify-center animate-spin-slow">
-                              <RefreshCw className="w-8 h-8 text-white/10" />
-                           </div>
-                           <div className="text-center">
-                              <p className="text-lg font-black text-white/40 uppercase tracking-widest">No Assets Detected</p>
-                              <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mt-2">Initialize nodes on Base network to begin sync</p>
-                           </div>
-                        </div>
-                     )}
+                     <RadialOrbitalTimeline timelineData={timelineData} />
                   </div>
-               </div>
+               ) : loading ? (
+                  <div className="relative h-[350px] md:h-[650px] rounded-[1.5rem] md:rounded-[3rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl flex flex-col items-center justify-center gap-6">
+                     <div className="w-24 h-24 rounded-full border-2 border-yellow-500/20 flex items-center justify-center animate-spin">
+                        <Loader2 className="w-8 h-8 text-yellow-500" />
+                     </div>
+                     <div className="text-center">
+                        <p className="text-lg font-black text-white uppercase tracking-widest animate-pulse">Syncing Synapse Nodes...</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mt-2">Connecting to Base Grid v4.2.1</p>
+                     </div>
+                  </div>
+               ) : (
+                  <div className="relative h-[350px] md:h-[650px] rounded-[1.5rem] md:rounded-[3rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl flex flex-col items-center justify-center gap-6">
+                     <div className="w-24 h-24 rounded-full border-2 border-white/5 flex items-center justify-center animate-spin-slow">
+                        <RefreshCw className="w-8 h-8 text-white/10" />
+                     </div>
+                     <div className="text-center">
+                        <p className="text-lg font-black text-white/40 uppercase tracking-widest">No Assets Detected</p>
+                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mt-2">Initialize nodes on Base network to begin sync</p>
+                     </div>
+                  </div>
+               )}
 
                {/* Asset Matrix */}
                <Card className="glass-card border-white/5 overflow-hidden">

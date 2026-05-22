@@ -1,12 +1,35 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 export const dynamic = "force-dynamic";
 
+function getEnvKeyFallback(): string {
+  try {
+    const envLocalPath = path.join(process.cwd(), ".env.local");
+    if (fs.existsSync(envLocalPath)) {
+      const content = fs.readFileSync(envLocalPath, "utf-8");
+      const match = content.match(/^OPENROUTER_API_KEY\s*=\s*(.*)$/m);
+      if (match) {
+        return match[1].trim().replace(/^["']|["']$/g, '');
+      }
+    }
+  } catch (err) {
+    console.error("[Risk API] Direct read of .env.local failed:", err);
+  }
+  return "";
+}
+
 async function getOpenRouterResponse(prompt: string) {
+  let openRouterKey = process.env.OPENROUTER_API_KEY?.replace(/^["']|["']$/g, '');
+  if (!openRouterKey) {
+    openRouterKey = getEnvKeyFallback();
+  }
+
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Authorization": `Bearer ${openRouterKey}`,
       "HTTP-Referer": "https://neurobase.ai",
       "X-Title": "NeuroBase AI",
       "Content-Type": "application/json"
