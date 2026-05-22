@@ -133,12 +133,14 @@ export async function POST(req: Request) {
       throw new Error("No valid OpenRouter API key found. Please set OPENROUTER_API_KEY.");
     }
 
+    // Model list: primary paid + confirmed working free models (live-tested)
     const openRouterModels = [
-      "google/gemini-2.0-flash-001",
-      "openai/gpt-4o-mini",
-      "meta-llama/llama-3.3-70b-instruct",
-      "google/gemini-2.5-flash",
-      "mistralai/mistral-7b-instruct:free"
+      "google/gemini-2.0-flash-001",               // Primary paid (fast, reliable)
+      "google/gemma-4-26b-a4b-it:free",            // Free - Google Gemma 4 26B (✅ live)
+      "nvidia/nemotron-3-super-120b-a12b:free",    // Free - NVIDIA Nemotron 120B (✅ live)
+      "nvidia/nemotron-nano-9b-v2:free",           // Free - NVIDIA Nemotron 9B (✅ live)
+      "liquid/lfm-2.5-1.2b-instruct:free",        // Free - Liquid 1.2B fast (✅ live)
+      "openrouter/free",                           // Free router (auto-select any free model)
     ];
     let response: Response = null as any;
     let lastErr: any = null;
@@ -146,7 +148,7 @@ export async function POST(req: Request) {
 
     for (const model of openRouterModels) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 7000); // 7-second timeout per model
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second timeout per model
       
       try {
         console.log(`[AI Chat] Attempting OpenRouter stream with model: ${model}...`);
