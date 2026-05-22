@@ -232,9 +232,9 @@ export default function PortfolioPage() {
          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-12"
+            className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-12"
          >
-            <div className="space-y-6">
+            <div className="space-y-6 w-full md:w-auto">
                <div className="flex items-center gap-3">
                   <div className={cn(
                      "px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-[0.3em] transition-all",
@@ -248,16 +248,16 @@ export default function PortfolioPage() {
                      {selectedNet === "all" ? "Omni-Chain Matrix" : NETWORKS.find(n => n.id === selectedNet)?.name}
                   </div>
                </div>
-               <h1 className="text-8xl font-black text-white leading-none tracking-tighter uppercase liquid-text select-none">Asset Terminal</h1>
+               <h1 className="text-4xl sm:text-5xl md:text-8xl font-black text-white leading-none tracking-tighter uppercase liquid-text select-none">Asset Terminal</h1>
 
                {/* Network Selection Matrix */}
-               <div className="flex flex-wrap gap-2 mt-4">
+               <div className="flex flex-row overflow-x-auto no-scrollbar max-w-full gap-2 mt-4 pb-2 md:flex-wrap">
                   {NETWORKS.map((net) => (
                      <Button
                         key={net.id}
                         onClick={() => setSelectedNet(net.id)}
                         className={cn(
-                           "h-10 px-4 rounded-xl border transition-all flex items-center gap-2 uppercase tracking-widest text-[9px] font-black",
+                           "h-10 px-4 rounded-xl border transition-all flex items-center gap-2 uppercase tracking-widest text-[9px] font-black flex-shrink-0",
                            selectedNet === net.id
                               ? "bg-yellow-500 text-black border-yellow-500 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
                               : "bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white"
@@ -286,18 +286,18 @@ export default function PortfolioPage() {
                </div>
             </div>
 
-            <div className="text-right space-y-4">
-               <div className="flex flex-col items-end gap-1">
+            <div className="text-left md:text-right space-y-4 w-full md:w-auto">
+               <div className="flex flex-col items-start md:items-end gap-1">
                   <p className="text-[12px] font-black text-white/30 uppercase tracking-[0.5em]">Consolidated Neural Value</p>
                   <div className="flex items-center gap-2">
                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                      <span className="text-[8px] font-black text-green-500 uppercase tracking-widest">Live Sync Active</span>
                   </div>
                </div>
-               <p className="text-7xl font-black text-white tracking-tighter tabular-nums shadow-sm">
+               <p className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter tabular-nums shadow-sm">
                   ${displayTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                </p>
-               <div className="flex items-center justify-end gap-3">
+               <div className="flex items-center justify-start md:justify-end gap-3">
                   <span className={cn(
                      "text-xs font-black flex items-center gap-1",
                      totalValue > 0 ? "text-green-500" : "text-white/20"
@@ -431,8 +431,8 @@ export default function PortfolioPage() {
 
             <div className="lg:col-span-9 space-y-10">
                {/* Upgraded Orbital Visualizer */}
-               <div className="relative group h-[650px] rounded-[3rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500 to-red-600 rounded-[3rem] blur-2xl opacity-10 group-hover:opacity-20 transition-opacity duration-1000" />
+               <div className="relative group h-[350px] md:h-[650px] rounded-[1.5rem] md:rounded-[3rem] overflow-hidden glass border border-white/5 bg-black/40 shadow-2xl">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500 to-red-600 rounded-[1.5rem] md:rounded-[3rem] blur-2xl opacity-10 group-hover:opacity-20 transition-opacity duration-1000" />
                   <div className="absolute inset-0 z-10">
                      <div className="absolute top-6 left-8 pointer-events-none z-20">
                         <div className="flex items-center gap-4 mb-3">
@@ -497,9 +497,9 @@ export default function PortfolioPage() {
 
                {/* Asset Matrix */}
                <Card className="glass-card border-white/5 overflow-hidden">
-                  <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 px-10 py-8 bg-white/[0.01]">
+                  <CardHeader className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between border-b border-white/5 px-4 py-6 md:px-10 md:py-8 bg-white/[0.01]">
                      <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-[0_0_20px_rgba(255,215,0,0.1)]">
+                        <div className="w-14 h-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-[0_0_20px_rgba(255,215,0,0.1)] flex-shrink-0">
                            <Wallet className="w-7 h-7 text-yellow-500" />
                         </div>
                         <div>
@@ -507,16 +507,16 @@ export default function PortfolioPage() {
                            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mt-1">Real-time Asset Synchronization</p>
                         </div>
                      </div>
-                     <div className="flex items-center gap-4">
-                        <div className="relative group/search">
+                     <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+                        <div className="relative group/search flex-1 md:flex-initial">
                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within/search:text-yellow-500 transition-colors" />
                            <input
                               type="text"
                               placeholder="Filter Synapses..."
-                              className="bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-xs font-black uppercase tracking-widest focus:outline-none focus:border-yellow-500/50 transition-all w-64 placeholder:text-white/20"
+                              className="bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-xs font-black uppercase tracking-widest focus:outline-none focus:border-yellow-500/50 transition-all w-full md:w-64 placeholder:text-white/20"
                            />
                         </div>
-                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black h-14 w-14 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 p-0">
+                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-black h-14 w-14 rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 p-0 flex-shrink-0">
                            <Plus className="w-7 h-7" />
                         </Button>
                      </div>
@@ -526,19 +526,19 @@ export default function PortfolioPage() {
                         <table className="w-full">
                            <thead>
                               <tr className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] border-b border-white/5">
-                                 <th className="px-6 py-4 text-left">Synapse</th>
-                                 <th className="px-6 py-4 text-right">Balance</th>
-                                 <th className="px-6 py-4 text-right">Value</th>
-                                 <th className="px-6 py-4 text-right">24H</th>
-                                 <th className="px-6 py-4 text-right">Weight</th>
+                                 <th className="px-2 md:px-6 py-4 text-left">Synapse</th>
+                                 <th className="px-2 md:px-6 py-4 text-right">Balance</th>
+                                 <th className="px-2 md:px-6 py-4 text-right">Value</th>
+                                 <th className="px-2 md:px-6 py-4 text-right">24H</th>
+                                 <th className="px-2 md:px-6 py-4 text-right hidden sm:table-cell">Weight</th>
                               </tr>
                            </thead>
                            <tbody className="divide-y divide-white/5">
                               {portfolioItems.map((item, i) => (
                                  <tr key={i} className="group hover:bg-white/[0.02] transition-all duration-300 cursor-pointer">
-                                    <td className="px-6 py-4">
-                                       <div className="flex items-center gap-4">
-                                          <div className="relative">
+                                    <td className="px-2 md:px-6 py-4">
+                                       <div className="flex items-center gap-3">
+                                          <div className="relative flex-shrink-0">
                                              <div className="absolute inset-0 bg-yellow-500/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                              <img
                                                 src={item.logo}
@@ -551,7 +551,7 @@ export default function PortfolioPage() {
                                           </div>
                                           <div>
                                              <p className="text-sm font-black text-white uppercase tracking-tight group-hover:text-yellow-500 transition-colors">{item.name}</p>
-                                             <div className="flex items-center gap-2 mt-0.5">
+                                             <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                                                 <p className="text-[9px] text-white/30 font-black uppercase tracking-[0.2em]">{item.symbol}</p>
                                                 <div className="w-1 h-1 rounded-full bg-white/10" />
                                                 <p className="text-[9px] text-yellow-500/50 font-black uppercase tracking-[0.2em]">{item.network}</p>
@@ -559,7 +559,7 @@ export default function PortfolioPage() {
                                           </div>
                                        </div>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
+                                    <td className="px-2 md:px-6 py-4 text-right">
                                        <p className="text-sm font-black text-white tracking-tight tabular-nums">
                                           {parseFloat(item.bal).toLocaleString(undefined, { maximumFractionDigits: 4 })}
                                        </p>
@@ -574,10 +574,10 @@ export default function PortfolioPage() {
                                           </motion.p>
                                        </div>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
+                                    <td className="px-2 md:px-6 py-4 text-right">
                                        <p className="text-md font-black text-white tabular-nums">${item.usdValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
+                                    <td className="px-2 md:px-6 py-4 text-right">
                                        <div className={cn(
                                           "inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest",
                                           item.change.startsWith("+") ? "text-green-500 bg-green-500/10 border border-green-500/20" : "text-red-500 bg-red-500/10 border border-red-500/20"
@@ -585,7 +585,7 @@ export default function PortfolioPage() {
                                           {item.change} {item.change.startsWith("+") ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                                        </div>
                                     </td>
-                                    <td className="px-6 py-4 text-right">
+                                    <td className="px-2 md:px-6 py-4 text-right hidden sm:table-cell">
                                        <div className="flex flex-col items-end gap-1.5">
                                           <span className="text-[10px] font-black text-white/40 uppercase tracking-widest tabular-nums">
                                              {totalValue > 0 ? Math.round((item.usdValue / totalValue) * 100) : 10}%

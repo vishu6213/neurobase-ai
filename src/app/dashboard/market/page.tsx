@@ -380,7 +380,7 @@ export default function MarketAnalysisPage() {
                 </span>
              </div>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-white leading-none tracking-tighter uppercase liquid-text select-none drop-shadow-sm">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-white leading-none tracking-tighter uppercase liquid-text select-none drop-shadow-sm">
             Market<br/>Matrix
           </h1>
           <p className="text-lg font-medium text-white/40 tracking-tight max-w-xl leading-relaxed">
@@ -482,14 +482,14 @@ export default function MarketAnalysisPage() {
               />
            </div>
 
-           <div className="flex flex-col gap-2">
+           <div className="flex flex-row overflow-x-auto no-scrollbar max-w-full pb-2 xl:flex-col gap-2">
               {CATEGORIES.map((cat) => (
                 <Button
                   key={cat.id}
                   onClick={() => setActiveCat(cat.id)}
                   variant="ghost"
                   className={cn(
-                    "h-12 justify-start px-4 rounded-xl border transition-all duration-300 relative group overflow-hidden",
+                    "h-12 justify-start px-4 rounded-xl border transition-all duration-300 relative group overflow-hidden shrink-0",
                     activeCat === cat.id 
                       ? "bg-white/10 border-white/10 text-white shadow-md" 
                       : "bg-transparent border-transparent text-white/40 hover:bg-white/5 hover:text-white/70"
@@ -575,8 +575,8 @@ export default function MarketAnalysisPage() {
                                 <th className="px-6 py-4 text-right font-medium">Matrix Value</th>
                                 <th className="px-6 py-4 text-right font-medium">24H Vector</th>
                                 <th className="px-6 py-4 text-center font-medium">Neural Signal</th>
-                                <th className="px-6 py-4 text-right font-medium">Liquidity Pool</th>
-                                <th className="px-6 py-4 text-right font-medium">Trajectory</th>
+                                <th className="px-6 py-4 text-right font-medium hidden sm:table-cell">Liquidity Pool</th>
+                                <th className="px-6 py-4 text-right font-medium hidden sm:table-cell">Trajectory</th>
                              </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5">
@@ -633,12 +633,12 @@ export default function MarketAnalysisPage() {
                                          {token.signal?.replace("_", " ")}
                                       </div>
                                    </td>
-                                   <td className="px-6 py-4 text-right">
+                                   <td className="px-6 py-4 text-right hidden sm:table-cell">
                                       <p className="text-sm text-white/60 tabular-nums font-medium">
                                         ${token.mcap > 1000000000 ? (token.mcap / 1000000000).toFixed(2) + "B" : (token.mcap / 1000000).toFixed(2) + "M"}
                                       </p>
                                    </td>
-                                   <td className="px-6 py-4">
+                                   <td className="px-6 py-4 hidden sm:table-cell">
                                       <div className="h-10 w-24 ml-auto">
                                          {token.sparkline.length > 0 && (
                                             <ResponsiveContainer width="100%" height="100%">
@@ -740,10 +740,10 @@ export default function MarketAnalysisPage() {
       <Dialog open={showStrategy} onOpenChange={setShowStrategy}>
         <DialogPortal>
           <DialogOverlay className="bg-black/90 backdrop-blur-sm z-[999]" />
-          <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] sm:max-w-none max-w-6xl bg-[#0a0a0a] border border-white/10 p-0 rounded-3xl overflow-hidden z-[1000]">
+          <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] sm:max-w-none max-w-6xl bg-[#0a0a0a] border border-white/10 p-0 rounded-3xl overflow-y-auto md:overflow-hidden z-[1000]">
              <div className="flex flex-col md:flex-row h-full">
                 {/* Sidebar */}
-                <div className="md:w-[30%] bg-white/[0.02] p-8 border-r border-white/5 flex flex-col justify-between">
+                <div className="md:w-[30%] bg-white/[0.02] p-6 md:p-8 border-b md:border-b-0 md:border-r border-white/5 flex flex-col justify-between">
                    <div className="space-y-8">
                       <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                          <BrainCircuit className="w-8 h-8 text-emerald-400" />
@@ -777,7 +777,7 @@ export default function MarketAnalysisPage() {
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 p-8 space-y-8 overflow-y-auto">
+                <div className="flex-1 p-6 md:p-8 space-y-6 md:space-y-8 overflow-y-auto">
                    <div className="flex justify-end">
                       <Button variant="ghost" size="icon" onClick={() => setShowStrategy(false)} className="rounded-full bg-white/5 hover:bg-white/10">
                         <X className="w-5 h-5 text-white" />

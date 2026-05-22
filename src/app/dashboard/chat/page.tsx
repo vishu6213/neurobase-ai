@@ -116,7 +116,7 @@ export default function ChatPage() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-160px)]">
+    <div className="flex flex-col h-[calc(100vh-13rem)] md:h-[calc(100vh-160px)]">
       <RuixenMonoChat 
         messages={messages}
         input={input}

@@ -254,7 +254,7 @@ export default function SignalsPage() {
         className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6"
       >
         <div>
-          <h1 className="text-5xl font-black text-white mb-2 tracking-tighter uppercase liquid-text">Alpha Neural Signals</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-2 tracking-tighter uppercase liquid-text">Alpha Neural Signals</h1>
           <p className="text-muted-foreground font-medium flex items-center gap-3">
             <span className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -305,7 +305,7 @@ export default function SignalsPage() {
                  <div className="flex flex-col md:flex-row">
                     {/* Left Section: Signal Type */}
                     <div className={cn(
-                      "w-full md:w-64 p-10 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-white/5 relative",
+                      "w-full md:w-64 p-6 md:p-10 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-white/5 relative",
                       signal.type === "BUY" ? "bg-emerald-500/5" : "bg-rose-500/5"
                     )}>
                        <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -349,7 +349,7 @@ export default function SignalsPage() {
                     </div>
   
                     {/* Middle Section: Details */}
-                    <div className="flex-1 p-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div className="flex-1 p-6 md:p-10 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
                        <div className="space-y-2">
                           <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Entry Synapse</p>
                           <p className="text-xl font-black text-white uppercase">{signal.entry}</p>
@@ -379,7 +379,7 @@ export default function SignalsPage() {
                     </div>
   
                     {/* Right Section: Actions */}
-                    <div className="w-full md:w-72 p-10 flex flex-col justify-center border-t md:border-t-0 md:border-l border-white/5 bg-black/40 backdrop-blur-sm group-hover:bg-black/20 transition-colors">
+                    <div className="w-full md:w-72 p-6 md:p-10 flex flex-col justify-center border-t md:border-t-0 md:border-l border-white/5 bg-black/40 backdrop-blur-sm group-hover:bg-black/20 transition-colors">
                        <div className="space-y-5 flex-1">
                           <div className="flex justify-between items-center">
                              <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2"><Clock className="w-3 h-3 text-blue-500" /> Last Pulse</span>
@@ -417,7 +417,7 @@ export default function SignalsPage() {
 
       {/* Educational Disclaimer */}
       <Card className="glass-card border-amber-500/20 bg-amber-500/5">
-         <CardContent className="p-8 flex gap-6">
+         <CardContent className="p-6 md:p-8 flex flex-col sm:flex-row gap-4 sm:gap-6">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center flex-shrink-0 border border-amber-500/20">
                <ShieldAlert className="w-6 h-6 text-amber-500" />
             </div>
@@ -434,11 +434,11 @@ export default function SignalsPage() {
       <Dialog open={!!selectedSignal} onOpenChange={() => setSelectedSignal(null)}>
         <DialogPortal>
           <DialogOverlay className="bg-black/90 backdrop-blur-sm z-[999]" />
-          <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] sm:max-w-none max-w-7xl bg-[#0a0a0a] border border-white/10 p-0 overflow-hidden rounded-3xl shadow-2xl z-[1000]">
+          <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] sm:max-w-none max-w-7xl bg-[#0a0a0a] border border-white/10 p-0 overflow-y-auto md:overflow-hidden rounded-3xl shadow-2xl z-[1000]">
              {selectedSignal && (
                <div className="flex flex-col h-full">
                   {/* Modal Header */}
-                  <div className="p-6 border-b border-white/5 flex flex-wrap justify-between items-center bg-white/[0.02]">
+                  <div className="p-4 md:p-6 border-b border-white/5 flex flex-wrap justify-between items-center bg-white/[0.02]">
                      <div className="flex items-center gap-6">
                         <div>
                            <div className="flex items-center gap-3">
@@ -463,7 +463,7 @@ export default function SignalsPage() {
                      <TradingViewWidget symbol={selectedSignal.symbol} network={selectedSignal.network} pairAddress={selectedSignal.pairAddress} />
                   </div>
                   {/* Modal Footer */}
-                  <div className="p-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-6 bg-white/[0.01]">
+                  <div className="p-4 md:p-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 bg-white/[0.01]">
                      {[
                         { label: "Signal Type", value: selectedSignal.type, icon: Activity, color: selectedSignal.type === "BUY" ? "text-emerald-400" : "text-rose-400" },
                         { label: "Confidence", value: `${selectedSignal.confidence}%`, icon: Target, color: "text-blue-400" },

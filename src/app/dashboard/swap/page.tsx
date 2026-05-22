@@ -482,24 +482,25 @@ export default function SwapPage() {
   return (
     <div className="relative w-full min-h-[calc(100vh-80px)] overflow-hidden bg-black" style={{ fontFamily: 'Inter, sans-serif' }}>
       <video
-        className="fixed inset-0 z-0 w-full h-full object-cover opacity-80 pointer-events-none"
+        className="fixed inset-0 z-0 w-full h-full object-cover opacity-80 pointer-events-none hidden md:block"
         src={BG_VIDEO}
         autoPlay
         loop
         muted
         playsInline
       />
-      <div className="fixed inset-0 bg-black/20 z-0" />
-      <div className="relative z-10 space-y-10 pb-20 pt-10 max-w-5xl mx-auto px-4 md:px-0">
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_center,#0f172a_0%,#020617_100%)] z-0 md:hidden animate-pulse-slow" />
+      <div className="fixed inset-0 bg-black/20 z-0 hidden md:block" />
+      <div className="relative z-10 space-y-6 md:space-y-10 pb-20 pt-10 max-w-5xl mx-auto px-4 md:px-0">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-4">
             <Zap className="w-3 h-3" /> Neural Swap Engine
           </div>
-          <h1 className="text-5xl font-black text-white uppercase tracking-tighter liquid-text mb-2 drop-shadow-lg">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase tracking-tighter liquid-text mb-2 drop-shadow-lg">
             Token Swap
           </h1>
-          <p className="text-muted-foreground font-medium drop-shadow-md">
+          <p className="text-muted-foreground font-medium drop-shadow-md text-sm md:text-base">
             Execute precision trades across any network
           </p>
         </motion.div>
@@ -515,8 +516,8 @@ export default function SwapPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Swap widget */}
           <div className="lg:col-span-2">
-            <Card className="bg-white/[0.01] backdrop-blur-sm border-white/10 p-8">
-              <div className="flex items-center justify-between mb-8">
+            <Card className="bg-white/[0.01] backdrop-blur-sm border-white/10 p-4 md:p-8">
+              <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between mb-8">
                 <h2 className="text-lg font-black text-white uppercase tracking-tight">Swap Interface</h2>
                 
                 <div className="flex items-center gap-2 relative">
@@ -565,7 +566,7 @@ export default function SwapPage() {
               </div>
 
               {/* From */}
-              <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 mb-2 relative z-40">
+              <div className="p-4 md:p-6 rounded-2xl bg-white/[0.02] border border-white/5 mb-2 relative z-40">
                 <TokenSelector 
                   selected={fromToken} 
                   onChange={(t) => setFromToken(t)} 
@@ -595,7 +596,7 @@ export default function SwapPage() {
               </div>
 
               {/* To */}
-              <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 mb-6 relative z-20">
+              <div className="p-4 md:p-6 rounded-2xl bg-white/[0.02] border border-white/5 mb-6 relative z-20">
                 <TokenSelector 
                   selected={toToken} 
                   onChange={(t) => setToToken(t)} 

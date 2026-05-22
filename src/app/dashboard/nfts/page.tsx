@@ -269,13 +269,13 @@ export default function NFTsPage() {
   };
 
   return (
-    <div className="space-y-10 pb-20">
+    <div className="space-y-10 pb-20 px-4 md:px-0">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-[10px] font-black text-purple-400 uppercase tracking-widest mb-4">
           <ImageIcon className="w-3 h-3" /> NFT Intelligence
         </div>
-        <h1 className="text-5xl font-black text-white uppercase tracking-tighter liquid-text mb-2">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase tracking-tighter liquid-text mb-2">
           NFT Explorer
         </h1>
         <p className="text-muted-foreground font-medium">
@@ -297,7 +297,7 @@ export default function NFTsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
           >
-            <Card className="glass-card border-white/5 p-5">
+            <Card className="glass-card border-white/5 p-4 md:p-5">
               <div className={cn(
                 "w-8 h-8 rounded-xl flex items-center justify-center mb-3",
                 stat.color === "yellow" ? "bg-yellow-500/10 text-yellow-500" :
@@ -308,20 +308,20 @@ export default function NFTsPage() {
                 <stat.icon className="w-4 h-4" />
               </div>
               <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">{stat.label}</p>
-              <p className="text-xl font-black text-white">{stat.value}</p>
+              <p className="text-lg md:text-xl font-black text-white">{stat.value}</p>
             </Card>
           </motion.div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar max-w-full pb-1">
         {(["portfolio", "trending", "discover"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all",
+              "px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all shrink-0",
               activeTab === tab
                 ? "bg-yellow-500 text-black"
                 : "bg-white/5 border border-white/10 text-muted-foreground hover:border-yellow-500/30"
@@ -335,13 +335,13 @@ export default function NFTsPage() {
       {/* Trending Collections */}
       {activeTab === "trending" && (
         <div className="space-y-3">
-          <div className="grid grid-cols-7 text-[9px] font-black text-muted-foreground uppercase tracking-widest px-5 pb-2 border-b border-white/5">
+          <div className="grid grid-cols-4 sm:grid-cols-7 text-[9px] font-black text-muted-foreground uppercase tracking-widest px-5 pb-2 border-b border-white/5">
             <span className="col-span-2">Collection</span>
             <span className="text-right">Floor</span>
-            <span className="text-right">Volume</span>
-            <span className="text-right">Network</span>
+            <span className="text-right hidden sm:block">Volume</span>
+            <span className="text-right hidden sm:block">Network</span>
             <span className="text-right">24h</span>
-            <span className="text-right">Action</span>
+            <span className="text-right hidden sm:block">Action</span>
           </div>
           
           {loadingTrending ? (
@@ -360,11 +360,11 @@ export default function NFTsPage() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.06 }}
-              className="grid grid-cols-7 items-center px-5 py-4 rounded-2xl border border-white/5 hover:border-yellow-500/20 bg-white/[0.02] hover:bg-yellow-500/[0.02] transition-all group cursor-pointer"
+              className="grid grid-cols-4 sm:grid-cols-7 items-center px-5 py-4 rounded-2xl border border-white/5 hover:border-yellow-500/20 bg-white/[0.02] hover:bg-yellow-500/[0.02] transition-all group cursor-pointer"
               style={{ borderColor: col.isUp ? undefined : "rgba(239,68,68,0.1)" }}
             >
-              <div className="col-span-2 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden border border-white/10 bg-black">
+              <div className="col-span-2 flex items-center gap-4 min-w-0">
+                <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden border border-white/10 bg-black">
                   {col.image ? (
                      // eslint-disable-next-line @next/next/no-img-element
                      <img src={col.image} alt={col.name} className="w-full h-full object-cover" />
@@ -372,18 +372,18 @@ export default function NFTsPage() {
                     <ImageIcon className="w-6 h-6 text-muted-foreground" />
                   )}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="font-black text-white uppercase tracking-tight text-sm truncate max-w-[150px]">{col.name}</p>
-                  <p className="text-[9px] text-muted-foreground uppercase">{col.collectionName}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase truncate max-w-[100px]">{col.collectionName}</p>
                 </div>
               </div>
-              <p className="text-right font-black text-white text-sm">{col.price}</p>
-              <p className="text-right text-sm text-muted-foreground">{col.volume}</p>
-              <p className="text-right text-[11px] text-muted-foreground">{col.network}</p>
+              <p className="text-right font-black text-white text-sm truncate">{col.price}</p>
+              <p className="text-right text-sm text-muted-foreground hidden sm:block truncate">{col.volume}</p>
+              <p className="text-right text-[11px] text-muted-foreground hidden sm:block truncate">{col.network}</p>
               <p className={cn("text-right font-black text-sm", col.isUp ? "text-emerald-400" : "text-red-400")}>
                 {col.change}
               </p>
-              <div className="flex justify-end">
+              <div className="hidden sm:flex justify-end">
                 <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 group-hover:border-yellow-500/30 text-[10px] font-black text-muted-foreground group-hover:text-yellow-500 transition-all">
                   Details
                 </button>
@@ -570,7 +570,7 @@ export default function NFTsPage() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-[#050505] border border-white/10 rounded-3xl w-full max-w-4xl overflow-hidden shadow-[0_0_100px_rgba(255,215,0,0.05)] flex flex-col md:flex-row relative"
+              className="bg-[#050505] border border-white/10 rounded-3xl w-full max-w-4xl overflow-y-auto md:overflow-hidden max-h-[90vh] md:max-h-[90vh] flex flex-col md:flex-row relative"
             >
               <button 
                 onClick={() => setSelectedNFT(null)}
@@ -580,7 +580,7 @@ export default function NFTsPage() {
               </button>
 
               {/* Left Side: Image */}
-              <div className="w-full md:w-1/2 bg-black border-r border-white/5 aspect-square md:aspect-auto min-h-[300px] flex items-center justify-center overflow-hidden">
+              <div className="w-full md:w-1/2 bg-black border-b md:border-b-0 md:border-r border-white/5 aspect-square md:aspect-auto min-h-[300px] flex items-center justify-center overflow-hidden">
                 {selectedNFT.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img 
@@ -597,7 +597,7 @@ export default function NFTsPage() {
               </div>
 
               {/* Right Side: Details */}
-              <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col justify-between max-h-[80vh] overflow-y-auto">
+              <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col justify-between md:max-h-[80vh] md:overflow-y-auto">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-4">
                     {selectedNFT.network || "Ethereum"}
@@ -614,19 +614,19 @@ export default function NFTsPage() {
                     {selectedNFT.price && (
                       <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Floor / Price</p>
-                        <p className="text-lg font-black text-white">{selectedNFT.price}</p>
+                        <p className="text-base font-black text-white">{selectedNFT.price}</p>
                       </div>
                     )}
                     {selectedNFT.volume && (
                       <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">24h Volume</p>
-                        <p className="text-lg font-black text-white">{selectedNFT.volume}</p>
+                        <p className="text-base font-black text-white">{selectedNFT.volume}</p>
                       </div>
                     )}
                     {selectedNFT.standard && (
                       <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Standard</p>
-                        <p className="text-lg font-black text-white uppercase">{selectedNFT.standard}</p>
+                        <p className="text-base font-black text-white uppercase">{selectedNFT.standard}</p>
                       </div>
                     )}
                   </div>

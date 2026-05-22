@@ -454,7 +454,7 @@ export default function RuixenMonoChat({
     ];
 
     return (
-        <div className="w-full max-w-6xl mx-auto p-4 md:p-6 bg-white dark:bg-black rounded-[2.5rem] shadow-2xl flex flex-col h-[calc(100vh-180px)] border border-gray-200 dark:border-white/10 transition-all">
+        <div className="w-full max-w-6xl mx-auto p-2 md:p-6 bg-white dark:bg-black rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl flex flex-col h-full border border-gray-200 dark:border-white/10 transition-all">
             {/* Header */}
             <header className="flex justify-between items-center border-b border-gray-100 dark:border-white/5 pb-4 mb-4">
                 <div className="flex items-center gap-4">
@@ -524,7 +524,7 @@ export default function RuixenMonoChat({
                 <section 
                     ref={scrollRef}
                     data-lenis-prevent
-                    className="flex-1 p-4 md:p-8 overflow-y-auto custom-scrollbar flex flex-col gap-6 min-h-0 scroll-smooth"
+                    className="flex-1 p-2 md:p-8 overflow-y-auto custom-scrollbar flex flex-col gap-6 min-h-0 scroll-smooth"
                 >
                     {messages.length === 0 ? (
                         <div className="flex-1 flex flex-col items-center justify-center opacity-20">

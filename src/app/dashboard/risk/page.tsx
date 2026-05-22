@@ -190,10 +190,12 @@ export default function RiskPage() {
         loop 
         muted 
         playsInline 
-        className="fixed inset-0 w-full h-full object-cover z-0 opacity-80"
+        className="fixed inset-0 w-full h-full object-cover z-0 opacity-80 hidden md:block"
       >
         <source src={BG_VIDEO_RISK} type="video/mp4" />
       </video>
+      {/* Glowing Mobile Crimson Fallback */}
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_center,#220505_0%,#000000_100%)] z-0 md:hidden" />
       <div className="fixed inset-0 bg-black/20 z-0" />
 
       {/* Content Wrapper */}
@@ -203,7 +205,7 @@ export default function RiskPage() {
           <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-black text-red-400 uppercase tracking-widest mb-4">
             <Icons.Shield className="w-3 h-3" /> Security Module
           </div>
-          <h1 className="text-5xl font-black text-white uppercase tracking-tighter liquid-text mb-2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase tracking-tighter liquid-text mb-2">
             Risk Analyzer
           </h1>
           <p className="text-muted-foreground font-medium">
@@ -215,7 +217,7 @@ export default function RiskPage() {
           {/* Scanner */}
           <div className="lg:col-span-2 space-y-6">
             {/* Input Card */}
-            <Card className="bg-white/[0.02] backdrop-blur-md border-white/10 p-8">
+            <Card className="bg-white/[0.02] backdrop-blur-md border-white/10 p-4 sm:p-6 md:p-8">
               <h2 className="text-lg font-black text-white uppercase tracking-tight mb-6">Scan Token Contract</h2>
               <div className="relative group mb-6">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-yellow-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition-opacity" />
@@ -264,7 +266,7 @@ export default function RiskPage() {
             <AnimatePresence mode="wait">
               {scanning ? (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} key="scanning">
-                  <Card className="bg-white/[0.02] backdrop-blur-md border-white/10 p-8 text-center py-12">
+                  <Card className="bg-white/[0.02] backdrop-blur-md border-white/10 p-4 sm:p-6 md:p-8 text-center py-12">
                       <div className="relative mb-4 mx-auto w-fit">
                         <div className="w-20 h-20 rounded-full border-4 border-red-500/20 border-t-red-500 animate-spin" />
                         <Icons.Shield className="absolute inset-0 m-auto w-8 h-8 text-red-500" />
@@ -276,7 +278,7 @@ export default function RiskPage() {
               ) : report ? (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} key="report" className="space-y-4">
                   {/* Score card */}
-                  <Card className={cn("bg-white/[0.02] backdrop-blur-xl p-8 border transition-colors", levelColors[report.level])}>
+                  <Card className={cn("bg-white/[0.02] backdrop-blur-xl p-4 sm:p-6 md:p-8 border transition-colors", levelColors[report.level])}>
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                       <div>
                         <div className="flex items-center gap-2 mb-2">

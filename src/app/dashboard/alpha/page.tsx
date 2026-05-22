@@ -183,13 +183,13 @@ export default function AlphaPage() {
   const filtered = filter === "all" ? alphaFeed : alphaFeed.filter((a) => a.type === filter);
 
   return (
-    <div className="space-y-10 pb-20">
+    <div className="space-y-10 pb-20 px-4 md:px-0">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-[10px] font-black text-purple-400 uppercase tracking-widest mb-4">
           <Sparkles className="w-3 h-3" /> Alpha Intelligence
         </div>
-        <h1 className="text-5xl font-black text-white uppercase tracking-tighter liquid-text mb-2">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase tracking-tighter liquid-text mb-2">
           Alpha Hunter
         </h1>
         <p className="text-muted-foreground font-medium">
@@ -201,13 +201,13 @@ export default function AlphaPage() {
         {/* Alpha Feed */}
         <div className="lg:col-span-2 space-y-5">
           {/* Filters */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar max-w-full pb-2 md:flex-wrap shrink-0">
             {filters.map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                  "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0",
                   filter === f
                     ? "bg-yellow-500 text-black"
                     : "bg-white/5 border border-white/10 text-muted-foreground hover:border-yellow-500/30"
@@ -219,7 +219,7 @@ export default function AlphaPage() {
             <button 
               onClick={() => setRefreshKey(k => k + 1)}
               disabled={loading}
-              className="ml-auto flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-muted-foreground hover:border-yellow-500/30 transition-all uppercase tracking-widest disabled:opacity-50"
+              className="md:ml-auto flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black text-muted-foreground hover:border-yellow-500/30 transition-all uppercase tracking-widest disabled:opacity-50 shrink-0"
             >
               {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
               Refresh
@@ -248,30 +248,30 @@ export default function AlphaPage() {
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ delay: i * 0.05 }}
                     className={cn(
-                      "p-6 rounded-2xl border transition-all group hover:scale-[1.01] cursor-pointer relative overflow-hidden",
+                      "p-4 sm:p-6 rounded-2xl border transition-all group hover:scale-[1.01] cursor-pointer relative overflow-hidden",
                       c.bg, c.border
                     )}
                     onClick={() => item.url && window.open(item.url, "_blank")}
                   >
-                    <div className="flex items-start justify-between mb-3 relative z-10">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{item.emoji}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 relative z-10 gap-3 sm:gap-0">
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl flex-shrink-0">{item.emoji}</span>
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className={cn("text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border", c.bg, c.border, c.text)}>
+                            <span className={cn("text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border shrink-0", c.bg, c.border, c.text)}>
                               {item.tag}
                             </span>
-                            <span className="text-[9px] text-muted-foreground uppercase tracking-widest">{item.time}</span>
+                            <span className="text-[9px] text-muted-foreground uppercase tracking-widest shrink-0">{item.time}</span>
                           </div>
-                          <h3 className="font-black text-white uppercase tracking-tight">{item.title}</h3>
+                          <h3 className="font-black text-white uppercase tracking-tight text-sm sm:text-base">{item.title}</h3>
                         </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
+                      <div className="flex flex-row sm:flex-col items-center sm:items-end gap-1 flex-shrink-0">
                         <div className="flex items-center gap-1">
                           <Zap className="w-3 h-3 text-yellow-500" />
                           <span className="text-[10px] font-black text-yellow-500">{item.confidence}%</span>
                         </div>
-                        <span className="text-[8px] text-muted-foreground uppercase">Confidence</span>
+                        <span className="text-[8px] text-muted-foreground uppercase hidden sm:inline">Confidence</span>
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed relative z-10">{item.body}</p>
