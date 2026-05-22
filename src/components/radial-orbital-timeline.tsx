@@ -167,6 +167,127 @@ export default function RadialOrbitalTimeline({
     }
   };
 
+  if (isMobile) {
+    return (
+      <div className={cn("w-full py-4 bg-transparent relative flex flex-col gap-4", className)}>
+        <div className="flex items-center gap-3 px-2 mb-2">
+          <Activity className="w-5 h-5 text-yellow-500 animate-pulse" />
+          <h3 className="text-xs font-black uppercase tracking-[0.25em] text-[#E1E0CC]/80">System Activity Stream</h3>
+        </div>
+        <div className="relative flex flex-col gap-4 pl-6 border-l border-white/10 ml-4 py-2">
+          {timelineData.map((item) => {
+            const isExpanded = expandedItems[item.id];
+            const Icon: any = item.icon;
+            return (
+              <div key={item.id} className="relative w-full">
+                {/* Timeline Dot with Glow */}
+                <div
+                  onClick={() => toggleItem(item.id)}
+                  className={cn(
+                    "absolute -left-[37px] top-2.5 w-7 h-7 rounded-lg border flex items-center justify-center cursor-pointer transition-all duration-300 z-10",
+                    item.status === "completed"
+                      ? "bg-yellow-500 border-yellow-500 text-black shadow-[0_0_10px_rgba(255,215,0,0.4)]"
+                      : item.status === "in-progress"
+                      ? "bg-red-600 border-red-600 text-white shadow-[0_0_10px_rgba(255,0,0,0.4)] animate-pulse"
+                      : "bg-black border-white/20 text-white/50"
+                  )}
+                >
+                  <Icon size={14} />
+                </div>
+
+                {/* Event Card */}
+                <div
+                  onClick={() => toggleItem(item.id)}
+                  className={cn(
+                    "w-full glass rounded-2xl border p-4 cursor-pointer transition-all duration-300 select-none",
+                    isExpanded
+                      ? "border-yellow-500/50 bg-yellow-500/[0.04] shadow-[0_0_20px_rgba(255,215,0,0.05)]"
+                      : "border-white/5 bg-white/[0.02] hover:border-white/10"
+                  )}
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#E1E0CC]/50">
+                      {item.category}
+                    </span>
+                    <span className="text-[9px] font-black text-[#E1E0CC]/30 tracking-tight">
+                      {item.date}
+                    </span>
+                  </div>
+                  <h4 className={cn(
+                    "text-sm font-black uppercase tracking-tight transition-colors",
+                    isExpanded ? "text-yellow-500" : "text-white"
+                  )}>
+                    {item.title}
+                  </h4>
+
+                  {/* Accordion Expansion */}
+                  <div
+                    className={cn(
+                      "grid transition-all duration-300 ease-in-out",
+                      isExpanded ? "grid-rows-[1fr] opacity-100 mt-3 pt-3 border-t border-white/5" : "grid-rows-[0fr] opacity-0"
+                    )}
+                  >
+                    <div className="overflow-hidden space-y-4">
+                      <p className="text-xs text-[#E1E0CC]/60 leading-relaxed font-medium">
+                        {item.content}
+                      </p>
+
+                      {/* Energy Bar */}
+                      <div>
+                        <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest mb-1.5">
+                          <span className="flex items-center text-yellow-500 gap-1.5">
+                            <Zap size={10} />
+                            Synapse Power
+                          </span>
+                          <span className="text-white">{item.energy}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-yellow-500 to-red-600 transition-all duration-500"
+                            style={{ width: `${item.energy}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Synapse Links */}
+                      {item.relatedIds.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5">
+                            <LinkIcon size={10} className="text-yellow-500" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-[#E1E0CC]/40">
+                              Synapse Links
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {item.relatedIds.map((relatedId) => {
+                              const relatedItem = timelineData.find((i) => i.id === relatedId);
+                              return (
+                                <button
+                                  key={relatedId}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleItem(relatedId);
+                                  }}
+                                  className="h-6 px-2 text-[8px] font-black uppercase tracking-widest rounded-lg border border-white/10 bg-white/5 hover:bg-yellow-500 hover:text-black hover:border-yellow-500 transition-all"
+                                >
+                                  {relatedItem?.title}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(

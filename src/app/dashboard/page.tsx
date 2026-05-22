@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { 
-  TrendingUp, 
-  Wallet, 
+import {
+  TrendingUp,
+  Wallet,
   Activity,
   Zap,
   Bot,
@@ -112,36 +112,36 @@ export default function OverviewPage() {
             method: "GET"
           })
         });
-        
+
         if (cgRes.ok) {
           const data = await cgRes.json();
           if (data.ethereum?.usd) {
             setEthPrice(data.ethereum.usd);
           }
         }
-      } catch (e) {}
+      } catch (e) { }
     };
     syncOracle();
     const interval = setInterval(syncOracle, 60000); // Reduce frequency to be safer
     return () => clearInterval(interval);
   }, [setEthPrice]);
-  
-  const displayBalance = isConnected 
-    ? `$${(totalValue > 0 ? totalValue : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}` 
+
+  const displayBalance = isConnected
+    ? `$${(totalValue > 0 ? totalValue : 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
     : "$12,450.25";
 
   return (
-    <div className="relative h-[calc(100vh-4rem)] w-full overflow-hidden rounded-3xl md:rounded-[2rem] selection:bg-yellow-500 selection:text-black">
+    <div className="relative min-h-[calc(100vh-5rem)] md:h-[calc(100vh-5rem)] w-full overflow-y-auto md:overflow-hidden rounded-3xl md:rounded-[2rem] selection:bg-yellow-500 selection:text-black">
       {/* Interface Layer */}
-      <div className="relative z-10 h-full w-full flex flex-col justify-between p-10">
-        
+      <div className="relative z-10 h-full w-full flex flex-col justify-between p-4 md:p-10 gap-6 md:gap-0">
+
         {/* Top: Header Info */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          <h1 className="text-6xl font-black text-[#E1E0CC] tracking-tighter uppercase mb-4 liquid-text">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-[#E1E0CC] tracking-tighter uppercase mb-2 md:mb-4 liquid-text break-all">
             {isConnected ? `Node: ${address?.slice(0, 8)}...` : "Neural Interface"}
           </h1>
           <div className="flex items-center gap-3">
@@ -149,38 +149,39 @@ export default function OverviewPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-500 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
             </span>
-            <span className="text-sm font-black text-[#E1E0CC]/80 uppercase tracking-[0.4em]">
+            <span className="text-[10px] sm:text-xs md:text-sm font-black text-[#E1E0CC]/80 uppercase tracking-[0.2em] md:tracking-[0.4em]">
               {isConnected ? "Protocol Synchronized: Base L2 Mainnet" : "Initializing Link"}
             </span>
           </div>
         </motion.div>
 
         {/* Bottom: Mesh (Left) and Balance (Right) */}
-        <div className="flex items-end justify-between w-full h-[500px]">
-          
-          {/* Mesh Visualization */}
-          <motion.div 
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-4xl flex items-center justify-start -mb-20 -ml-32"
-          >
-            <RadialOrbitalTimeline 
-              timelineData={timelineData} 
-              className="bg-black/5 rounded-[3rem] border border-white/5 scale-[0.85] origin-left" 
-            />
-          </motion.div>
+        <div className="flex flex-col md:flex-row md:items-end justify-between w-full gap-8 md:gap-4 md:h-[500px] mt-4 md:mt-0">
 
           {/* Net Worth */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="text-right pb-10 pr-4"
+            className="order-1 md:order-2 text-left md:text-right pb-2 md:pb-10 md:pr-4"
           >
-            <p className="text-[12px] font-black text-[#E1E0CC]/50 uppercase tracking-[0.5em] mb-2">Neural Net Worth</p>
-            <p className="text-7xl font-black text-[#E1E0CC] tracking-tighter">{displayBalance}</p>
+            <p className="text-[10px] md:text-[12px] font-black text-[#E1E0CC]/50 uppercase tracking-[0.3em] md:tracking-[0.5em] mb-1 md:mb-2">Neural Net Worth</p>
+            <p className="text-4xl sm:text-5xl md:text-7xl font-black text-[#E1E0CC] tracking-tighter">{displayBalance}</p>
           </motion.div>
+
+          {/* Mesh Visualization */}
+          <motion.div
+            initial={{ opacity: 0, x: -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="order-2 md:order-1 w-full max-w-full md:max-w-4xl flex items-center justify-start md:-mb-20 md:-ml-32"
+          >
+            <RadialOrbitalTimeline
+              timelineData={timelineData}
+              className="bg-black/5 rounded-[2rem] md:rounded-[3rem] border border-white/5 scale-100 md:scale-[0.85] origin-top md:origin-left"
+            />
+          </motion.div>
+
         </div>
 
       </div>

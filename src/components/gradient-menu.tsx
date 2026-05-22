@@ -34,21 +34,30 @@ export function GradientMenu() {
   const pathname = usePathname();
 
   return (
-    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] flex justify-center items-center">
-      <ul className="flex gap-4 p-4 glass-card rounded-[40px] border-white/10 shadow-2xl">
+    <div className="fixed bottom-4 left-2 right-2 md:bottom-10 md:left-1/2 md:-translate-x-1/2 z-[200] flex justify-center items-center max-w-full">
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none !important;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
+        }
+      `}</style>
+      <ul className="flex gap-2 md:gap-4 p-2 md:p-4 glass-card rounded-[32px] md:rounded-[40px] border-white/10 shadow-2xl overflow-x-auto md:overflow-x-visible max-w-full no-scrollbar scroll-smooth">
         {menuItems.map(({ title, href, icon, gradientFrom, gradientTo }, idx) => {
           const isActive = pathname === href;
 
           return (
-            <Link key={idx} href={href}>
+            <Link key={idx} href={href} className="flex-shrink-0">
               <li
                 style={{
                   '--gradient-from': gradientFrom,
                   '--gradient-to': gradientTo
                 } as React.CSSProperties}
                 className={cn(
-                  "relative w-[60px] h-[60px] bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full flex items-center justify-center transition-all duration-500 hover:w-[160px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] group cursor-pointer overflow-hidden",
-                  isActive && "w-[160px] bg-white shadow-xl"
+                  "relative w-12 h-12 md:w-[60px] md:h-[60px] bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full flex items-center justify-center transition-all duration-500 hover:w-[120px] md:hover:w-[160px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] group cursor-pointer overflow-hidden flex-shrink-0",
+                  isActive && "w-[120px] md:w-[160px] bg-white shadow-xl"
                 )}
               >
                 {/* Gradient background on hover/active */}
@@ -69,14 +78,14 @@ export function GradientMenu() {
                   isActive && "scale-0"
                 )}>
                   <span className={cn(
-                    "text-2xl text-muted-foreground group-hover:text-white transition-colors",
+                    "text-xl md:text-2xl text-muted-foreground group-hover:text-white transition-colors",
                     isActive && "text-white"
                   )}>{icon}</span>
                 </span>
 
                 {/* Title */}
                 <span className={cn(
-                  "absolute text-white uppercase font-black tracking-widest text-[10px] transition-all duration-500 scale-0 group-hover:scale-100 delay-150",
+                  "absolute text-white uppercase font-black tracking-widest text-[8px] md:text-[10px] transition-all duration-500 scale-0 group-hover:scale-100 delay-150",
                   isActive && "scale-100"
                 )}>
                   {title}
