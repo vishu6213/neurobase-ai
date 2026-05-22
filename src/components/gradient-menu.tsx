@@ -34,17 +34,51 @@ export function GradientMenu() {
   const pathname = usePathname();
 
   return (
-    <div className="fixed bottom-4 left-2 right-2 md:bottom-10 md:left-1/2 md:-translate-x-1/2 z-[200] flex justify-center items-center max-w-full">
+    <div className="fixed bottom-0 left-0 right-0 md:bottom-10 md:left-1/2 md:right-auto md:-translate-x-1/2 z-[200] flex justify-center items-center">
       <style>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none !important;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none !important;
-          scrollbar-width: none !important;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none !important; }
+        .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
       `}</style>
-      <ul className="flex gap-2 md:gap-4 p-2 md:p-4 glass-card rounded-[32px] md:rounded-[40px] border-white/10 shadow-2xl overflow-x-auto md:overflow-x-visible max-w-full no-scrollbar scroll-smooth">
+
+      {/* Mobile menu - full bottom bar with icon + label always visible */}
+      <div className="md:hidden w-full bg-black/80 backdrop-blur-xl border-t border-white/10 pb-safe">
+        <ul className="flex items-center overflow-x-auto no-scrollbar px-2 py-2 gap-1">
+          {menuItems.map(({ title, href, icon, gradientFrom, gradientTo }, idx) => {
+            const isActive = pathname === href;
+            return (
+              <Link key={idx} href={href} className="flex-shrink-0">
+                <li
+                  style={{
+                    background: isActive
+                      ? `linear-gradient(135deg, ${gradientFrom}, ${gradientTo})`
+                      : 'transparent',
+                  }}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-2xl min-w-[56px] transition-all duration-200",
+                    isActive ? "shadow-lg" : "active:scale-95"
+                  )}
+                >
+                  <span className={cn(
+                    "text-xl leading-none",
+                    isActive ? "text-white" : "text-white/50"
+                  )}>
+                    {icon}
+                  </span>
+                  <span className={cn(
+                    "text-[8px] font-black uppercase tracking-wide leading-none whitespace-nowrap",
+                    isActive ? "text-white" : "text-white/40"
+                  )}>
+                    {title}
+                  </span>
+                </li>
+              </Link>
+            );
+          })}
+        </ul>
+      </div>
+
+      {/* Desktop menu - floating pill with hover expand effect */}
+      <ul className="hidden md:flex gap-4 p-4 glass-card rounded-[40px] border-white/10 shadow-2xl">
         {menuItems.map(({ title, href, icon, gradientFrom, gradientTo }, idx) => {
           const isActive = pathname === href;
 
@@ -56,8 +90,8 @@ export function GradientMenu() {
                   '--gradient-to': gradientTo
                 } as React.CSSProperties}
                 className={cn(
-                  "relative w-12 h-12 md:w-[60px] md:h-[60px] bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full flex items-center justify-center transition-all duration-500 hover:w-[120px] md:hover:w-[160px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] group cursor-pointer overflow-hidden flex-shrink-0",
-                  isActive && "w-[120px] md:w-[160px] bg-white shadow-xl"
+                  "relative w-[60px] h-[60px] bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full flex items-center justify-center transition-all duration-500 hover:w-[160px] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] group cursor-pointer overflow-hidden flex-shrink-0",
+                  isActive && "w-[160px] bg-white shadow-xl"
                 )}
               >
                 {/* Gradient background on hover/active */}
@@ -78,14 +112,14 @@ export function GradientMenu() {
                   isActive && "scale-0"
                 )}>
                   <span className={cn(
-                    "text-xl md:text-2xl text-muted-foreground group-hover:text-white transition-colors",
+                    "text-2xl text-muted-foreground group-hover:text-white transition-colors",
                     isActive && "text-white"
                   )}>{icon}</span>
                 </span>
 
                 {/* Title */}
                 <span className={cn(
-                  "absolute text-white uppercase font-black tracking-widest text-[8px] md:text-[10px] transition-all duration-500 scale-0 group-hover:scale-100 delay-150",
+                  "absolute text-white uppercase font-black tracking-widest text-[10px] transition-all duration-500 scale-0 group-hover:scale-100 delay-150",
                   isActive && "scale-100"
                 )}>
                   {title}
@@ -98,3 +132,4 @@ export function GradientMenu() {
     </div>
   );
 }
+

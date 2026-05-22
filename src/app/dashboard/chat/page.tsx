@@ -22,6 +22,9 @@ export default function ChatPage() {
     addMessage({ role: "user", content: userMessage });
     setIsLoading(true);
 
+    // Add empty assistant message immediately so updateLastAssistantMessage targets it
+    addMessage({ role: "assistant", content: "" });
+
     try {
       const state = usePortfolioStore.getState();
       const response = await fetch("/api/chat", {
@@ -38,9 +41,10 @@ export default function ChatPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to fetch");
-
-      addMessage({ role: "assistant", content: "" });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData?.error || `Server error ${response.status}`);
+      }
       
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -49,14 +53,15 @@ export default function ChatPage() {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value);
-          updateLastAssistantMessage(chunk);
+          const chunk = decoder.decode(value, { stream: true });
+          if (chunk) updateLastAssistantMessage(chunk);
         }
       }
       
     } catch (error) {
       console.error("Chat error:", error);
-      updateLastAssistantMessage("\n\n*Error: Failed to get response from AI Agent. Please check your API key.*");
+      const errMsg = error instanceof Error ? error.message : "Unknown error";
+      updateLastAssistantMessage(`\n⚠️ *${errMsg}. Please try again.*`);
     } finally {
       setIsLoading(false);
     }
@@ -69,6 +74,7 @@ export default function ChatPage() {
       : `[System Notification: The user has declined/cancelled the transaction. Prompt the user asking if they want to make any adjustments or try again.]`;
       
     addMessage({ role: "user", content: notificationText });
+    addMessage({ role: "assistant", content: "" });
     
     try {
       const state = usePortfolioStore.getState();
@@ -86,9 +92,10 @@ export default function ChatPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to fetch");
-
-      addMessage({ role: "assistant", content: "" });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData?.error || `Server error ${response.status}`);
+      }
       
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -97,12 +104,14 @@ export default function ChatPage() {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value);
-          updateLastAssistantMessage(chunk);
+          const chunk = decoder.decode(value, { stream: true });
+          if (chunk) updateLastAssistantMessage(chunk);
         }
       }
     } catch (error) {
       console.error("Action completion feed error:", error);
+      const errMsg = error instanceof Error ? error.message : "Unknown error";
+      updateLastAssistantMessage(`\n⚠️ *${errMsg}*`);
     } finally {
       setIsLoading(false);
     }

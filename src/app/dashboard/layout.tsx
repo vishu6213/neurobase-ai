@@ -95,7 +95,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Scrollable Area - Now uses root scroll */}
-        <div className="pt-20 p-4 md:p-10 relative pb-32 md:pb-40 min-h-[calc(100vh-5rem)]">
+        <div className="pt-20 p-4 md:p-10 relative pb-24 md:pb-40 min-h-[calc(100vh-5rem)]">
           {!mounted || isConnecting || isReconnecting ? (
             <div className="flex items-center justify-center h-[60vh]">
               <div className="w-12 h-12 rounded-full border-2 border-yellow-500/20 border-t-yellow-500 animate-spin" />
