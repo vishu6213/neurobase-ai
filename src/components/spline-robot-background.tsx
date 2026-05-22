@@ -218,7 +218,7 @@ export function SplineRobotBackground() {
     <>
       <div ref={sentinelRef} aria-hidden="true" />
 
-      {(!mounted || !webGPUSupported) ? (
+      {(!mounted || !webGPUSupported || isMobile || isLowPower) ? (
         <div
           aria-hidden="true"
           style={{

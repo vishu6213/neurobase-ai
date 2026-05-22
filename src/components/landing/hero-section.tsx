@@ -11,10 +11,10 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/navigation";
 
 const statsData = [
-  { value: "12,400+", label: "Active Agents",       icon: Bot },
-  { value: "$2.8B+",  label: "TVL Analyzed",        icon: TrendingUp },
-  { value: "840K+",   label: "Signals Generated",   icon: Zap },
-  { value: "99.8%",   label: "Uptime SLA",          icon: Shield },
+  { value: "12,400+", label: "Active Agents", icon: Bot },
+  { value: "$2.8B+", label: "TVL Analyzed", icon: TrendingUp },
+  { value: "840K+", label: "Signals Generated", icon: Zap },
+  { value: "99.8%", label: "Uptime SLA", icon: Shield },
 ];
 
 const taglines = [
