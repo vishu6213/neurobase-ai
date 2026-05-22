@@ -133,108 +133,90 @@ export async function POST(req: Request) {
       throw new Error("No valid OpenRouter API key found. Please set OPENROUTER_API_KEY.");
     }
 
-    // Model list: primary paid + confirmed working free models (live-tested)
+    // Only include models confirmed to work with streaming (live-tested, no stuck processing)
     const openRouterModels = [
-      "google/gemini-2.0-flash-001",               // Primary paid (fast, reliable)
-      "google/gemma-4-26b-a4b-it:free",            // Free - Google Gemma 4 26B (✅ live)
-      "nvidia/nemotron-3-super-120b-a12b:free",    // Free - NVIDIA Nemotron 120B (✅ live)
-      "nvidia/nemotron-nano-9b-v2:free",           // Free - NVIDIA Nemotron 9B (✅ live)
-      "liquid/lfm-2.5-1.2b-instruct:free",        // Free - Liquid 1.2B fast (✅ live)
-      "openrouter/free",                           // Free router (auto-select any free model)
+      "google/gemini-2.0-flash-001",            // Primary paid - fast, reliable
+      "liquid/lfm-2.5-1.2b-instruct:free",      // Free - confirmed streaming ✅
+      "google/gemma-4-26b-a4b-it:free",          // Free - confirmed streaming ✅ (may rate-limit)
     ];
-    let response: Response = null as any;
-    let lastErr: any = null;
-    let success = false;
 
+    let fullContent = "";
+    let modelUsed = "";
+    let lastErr: any = null;
+
+    // Try each model with NON-STREAMING for reliability, then stream result back
     for (const model of openRouterModels) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second timeout per model
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
       
       try {
-        console.log(`[AI Chat] Attempting OpenRouter stream with model: ${model}...`);
-        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        console.log(`[AI Chat] Trying model: ${model}`);
+        const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           cache: "no-store",
           headers: {
             "Authorization": `Bearer ${openRouterKey}`,
             "HTTP-Referer": "https://neurobase.ai",
             "X-Title": "NeuroBase AI",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: model,
+            model,
             messages: [
               { role: "system", content: systemPrompt },
-              ...messages.map((m: any) => ({
-                role: m.role,
-                content: m.content
-              }))
+              ...messages.map((m: any) => ({ role: m.role, content: m.content })),
             ],
-            stream: true,
+            stream: false, // Non-streaming for reliability
+            max_tokens: 1500,
           }),
-          signal: controller.signal
+          signal: controller.signal,
         });
 
         clearTimeout(timeoutId);
 
-        if (!response.ok) {
-          const errText = await response.text().catch(() => "Unknown error");
-          console.warn(`[AI Chat] OpenRouter model ${model} failed:`, errText);
-          throw new Error(`OpenRouter (${model}) failed: ${errText}`);
+        if (!resp.ok) {
+          const errText = await resp.text().catch(() => "Unknown error");
+          console.warn(`[AI Chat] Model ${model} HTTP ${resp.status}:`, errText.substring(0, 150));
+          throw new Error(`HTTP ${resp.status}: ${errText}`);
         }
 
-        success = true;
-        break; // Exit loop on success
+        const data = await resp.json();
+        const content = data?.choices?.[0]?.message?.content?.trim() || "";
+        
+        if (!content) {
+          console.warn(`[AI Chat] Model ${model} returned empty content.`);
+          throw new Error("Empty content from model.");
+        }
+
+        fullContent = content;
+        modelUsed = model;
+        console.log(`[AI Chat] Success with model ${model}, content length: ${content.length}`);
+        break;
       } catch (err: any) {
         clearTimeout(timeoutId);
         lastErr = err;
-        const errMsg = err.name === 'AbortError' ? 'Timeout' : err.message;
-        console.warn(`[AI Chat] Model ${model} failed (${errMsg}), attempting next model...`);
+        const errMsg = err.name === "AbortError" ? "Timeout (25s)" : err.message;
+        console.warn(`[AI Chat] Model ${model} failed (${errMsg}), trying next...`);
       }
     }
 
-    if (!success) {
-      throw lastErr || new Error("Failed to get response from OpenRouter models.");
+    if (!fullContent) {
+      console.error("[AI Chat] All models failed. Last error:", lastErr?.message);
+      throw lastErr || new Error("All AI models failed to respond.");
     }
 
-    if (!response.ok) {
-      const errText = await response.text().catch(() => "Unknown error");
-      console.error("[AI Chat] API request failed completely:", errText);
-      throw new Error(`AI API request failed: ${errText}`);
-    }
-
+    // Stream the collected content back to the client word-by-word for a nice effect
     const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-    const reader = response.body?.getReader();
+    const words = fullContent.split(/(\s+)/); // Split on whitespace, keep delimiters
 
     const stream = new ReadableStream({
       async start(controller) {
-        if (!reader) return;
-        
-        let buffer = "";
         try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-
-            for (const line of lines) {
-              const cleanLine = line.trim();
-              if (cleanLine === "" || cleanLine === "data: [DONE]") continue;
-              if (cleanLine.startsWith("data: ")) {
-                try {
-                  const json = JSON.parse(cleanLine.substring(6));
-                  const content = json.choices?.[0]?.delta?.content || "";
-                  if (content) {
-                    controller.enqueue(encoder.encode(content));
-                  }
-                } catch (e) {
-                  // Skip invalid JSON
-                }
-              }
+          for (const word of words) {
+            if (word) {
+              controller.enqueue(encoder.encode(word));
+              // Small delay to simulate streaming effect
+              await new Promise((r) => setTimeout(r, 8));
             }
           }
         } catch (error) {
@@ -245,7 +227,12 @@ export async function POST(req: Request) {
       },
     });
 
-    return new Response(stream);
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Model-Used": modelUsed,
+      },
+    });
   } catch (error) {
     console.error("AI Chat Error:", error);
     const errorMsg = error instanceof Error ? error.message : "Failed to process chat";
