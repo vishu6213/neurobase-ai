@@ -59,11 +59,13 @@ export function SplineSceneBasic() {
         </div>
 
         {/* Right content */}
-        <div className="flex-1 relative h-[40vh] md:h-full flex items-center justify-center overflow-hidden bg-transparent">
-          <SplineScene
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-            className="w-full h-full"
-          />
+        <div className="flex-1 relative h-[50vh] md:h-full min-h-[400px] flex items-center justify-center overflow-hidden bg-transparent">
+          <div className="w-full h-full absolute inset-0 flex items-center justify-center transform scale-[0.65] md:scale-100 origin-center">
+            <SplineScene
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              className="w-full h-full"
+            />
+          </div>
         </div>
       </div>
     </Card>

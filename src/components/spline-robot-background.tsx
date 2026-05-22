@@ -37,10 +37,12 @@ const PostProcessing = ({
   strength = 1,
   threshold = 1,
   fullScreenEffect = true,
+  isMobile = false,
 }: {
   strength?: number;
   threshold?: number;
   fullScreenEffect?: boolean;
+  isMobile?: boolean;
 }) => {
   const { gl, scene, camera } = useThree();
   const progressRef = useRef({ value: 0 });
@@ -72,7 +74,7 @@ const PostProcessing = ({
     const hasNativeWebGPU = typeof navigator !== 'undefined' && !!(navigator as any).gpu;
     let final = withScanEffect;
 
-    if (hasNativeWebGPU) {
+    if (hasNativeWebGPU && !isMobile) {
       try {
         const bloomPass = bloom(scenePassColor, strength, 0.5, threshold);
         final = withScanEffect.add(bloomPass);
@@ -218,7 +220,7 @@ export function SplineRobotBackground() {
     <>
       <div ref={sentinelRef} aria-hidden="true" />
 
-      {(!mounted || !webGPUSupported || isMobile || isLowPower) ? (
+      {(!mounted || !webGPUSupported) ? (
         <div
           aria-hidden="true"
           style={{
@@ -282,6 +284,7 @@ export function SplineRobotBackground() {
           <div style={{ position: 'absolute', inset: 0, transform: 'translateZ(0)' }}>
             <Canvas
               flat
+              dpr={isMobile || isLowPower ? 0.5 : [1, 2]}
               gl={async (props) => {
                 try {
                   const renderer = new THREE.WebGPURenderer(props as any);
@@ -301,7 +304,7 @@ export function SplineRobotBackground() {
                 }
               }}
             >
-              <PostProcessing fullScreenEffect={true} />
+              <PostProcessing fullScreenEffect={true} isMobile={isMobile || isLowPower} />
               <Suspense fallback={null}>
                 <Scene />
               </Suspense>
