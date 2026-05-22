@@ -133,11 +133,14 @@ export async function POST(req: Request) {
       throw new Error("No valid OpenRouter API key found. Please set OPENROUTER_API_KEY.");
     }
 
-    // Only include models confirmed to work with streaming (live-tested, no stuck processing)
+    // Only include models confirmed to work and serve as reliable fallbacks
     const openRouterModels = [
       "google/gemini-2.0-flash-001",            // Primary paid - fast, reliable
-      "liquid/lfm-2.5-1.2b-instruct:free",      // Free - confirmed streaming ✅
-      "google/gemma-4-26b-a4b-it:free",          // Free - confirmed streaming ✅ (may rate-limit)
+      "google/gemini-2.5-flash",                // Secondary paid - fast, smart, cheap
+      "openrouter/free",                        // OpenRouter free router (auto-fallback across all free models)
+      "liquid/lfm-2.5-1.2b-instruct:free",      // Free - backup
+      "nvidia/nemotron-3-super-120b-a12b:free", // Free - backup
+      "nvidia/nemotron-nano-9b-v2:free",         // Free - backup
     ];
 
     let fullContent = "";
