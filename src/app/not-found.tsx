@@ -3,8 +3,27 @@
 import Link from "next/link";
 import { Bot, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function NotFound() {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (pathname) {
+      const lowerPath = pathname.toLowerCase();
+      if (
+        lowerPath.includes("spartil") ||
+        lowerPath.includes("spartial") ||
+        lowerPath.includes("spatial")
+      ) {
+        router.replace("/dashboard/portfolio");
+      } else if (lowerPath.startsWith("/dashboard")) {
+        router.replace("/dashboard");
+      }
+    }
+  }, [pathname, router]);
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
       <div className="w-20 h-20 bg-gradient-to-br from-yellow-500 to-red-600 rounded-3xl flex items-center justify-center shadow-2xl mb-8 animate-float">

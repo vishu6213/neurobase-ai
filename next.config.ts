@@ -31,6 +31,55 @@ const nextConfig: import("next").NextConfig = {
     ],
   },
   turbopack: {},
+  async redirects() {
+    return [
+      {
+        source: "/dashboard/spartil",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/spartial",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/spatial",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/spartil-matrix",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/spartial-matrix",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/spatial-matrix",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/spartil",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/spartial",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+      {
+        source: "/spatial",
+        destination: "/dashboard/portfolio",
+        permanent: true,
+      },
+    ];
+  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       // Prevent bundling of packages that require native modules
