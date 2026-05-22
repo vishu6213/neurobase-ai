@@ -434,32 +434,32 @@ export default function SignalsPage() {
       <Dialog open={!!selectedSignal} onOpenChange={() => setSelectedSignal(null)}>
         <DialogPortal>
           <DialogOverlay className="bg-black/90 backdrop-blur-sm z-[999]" />
-          <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] sm:max-w-none max-w-7xl bg-[#0a0a0a] border border-white/10 p-0 overflow-y-auto md:overflow-hidden rounded-3xl shadow-2xl z-[1000]">
+          <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] md:h-[90vh] sm:max-w-none max-w-7xl bg-[#0a0a0a] border border-white/10 p-0 overflow-y-auto md:overflow-hidden rounded-3xl shadow-2xl z-[1000]">
              {selectedSignal && (
-               <div className="flex flex-col h-full">
+                <div className="flex flex-col h-full md:h-full">
                   {/* Modal Header */}
                   <div className="p-4 md:p-6 border-b border-white/5 flex flex-wrap justify-between items-center bg-white/[0.02]">
-                     <div className="flex items-center gap-6">
+                     <div className="flex items-center gap-4 md:gap-6">
                         <div>
-                           <div className="flex items-center gap-3">
-                              <h2 className="text-4xl font-black text-white tracking-tight">{selectedSignal.symbol}</h2>
-                              <span className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 uppercase tracking-widest">{selectedSignal.network}</span>
+                           <div className="flex items-center gap-2 md:gap-3">
+                              <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight">{selectedSignal.symbol}</h2>
+                              <span className="px-1.5 py-0.5 md:px-2 md:py-1 rounded-md bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-bold text-white/50 uppercase tracking-widest">{selectedSignal.network}</span>
                            </div>
-                           <p className="text-sm font-medium text-white/40 mt-1">{selectedSignal.token}</p>
+                           <p className="text-xs md:text-sm font-medium text-white/40 mt-0.5 md:mt-1">{selectedSignal.token}</p>
                         </div>
                      </div>
-                     <div className="flex items-center gap-8">
+                     <div className="flex items-center gap-4 md:gap-8">
                         <div className="text-right hidden sm:block">
-                          <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1">Target</p>
-                          <p className="text-3xl font-black text-emerald-400 tabular-nums">{selectedSignal.target}</p>
+                           <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1">Target</p>
+                           <p className="text-2xl md:text-3xl font-black text-emerald-400 tabular-nums">{selectedSignal.target}</p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedSignal(null)} className="rounded-full">
-                          <X className="w-6 h-6" />
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedSignal(null)} className="rounded-full w-8 h-8 md:w-10 md:h-10">
+                           <X className="w-4 h-4 md:w-6 md:h-6" />
                         </Button>
                      </div>
                   </div>
                   {/* Modal Body */}
-                  <div className="flex-1 bg-black/50 p-4 relative z-10 min-h-0">
+                   <div className="flex-1 bg-black/50 p-2 md:p-4 relative z-10 min-h-[350px] sm:min-h-[400px] md:min-h-0">
                      <TradingViewWidget symbol={selectedSignal.symbol} network={selectedSignal.network} pairAddress={selectedSignal.pairAddress} />
                   </div>
                   {/* Modal Footer */}
@@ -470,12 +470,12 @@ export default function SignalsPage() {
                         { label: "Stop Loss", value: selectedSignal.stop, icon: ShieldAlert, color: "text-rose-400" },
                         { label: "Risk Tier", value: selectedSignal.riskTier, icon: AlertTriangle, color: selectedSignal.riskTier === "Low Risk" ? "text-blue-400" : selectedSignal.riskTier === "Medium Risk" ? "text-amber-400" : "text-rose-400" },
                      ].map((item, i) => (
-                        <div key={i} className="space-y-2">
-                           <div className="flex items-center gap-2 text-white/40">
-                              <item.icon className="w-4 h-4" />
-                              <span className="text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
+                        <div key={i} className="space-y-1 md:space-y-2">
+                           <div className="flex items-center gap-1.5 md:gap-2 text-white/40">
+                              <item.icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                              <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
                            </div>
-                           <p className={cn("text-xl font-bold text-white tabular-nums", item.color)}>{item.value}</p>
+                           <p className={cn("text-lg md:text-xl font-bold text-white tabular-nums", item.color)}>{item.value}</p>
                         </div>
                      ))}
                   </div>

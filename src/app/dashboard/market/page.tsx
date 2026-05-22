@@ -687,55 +687,55 @@ export default function MarketAnalysisPage() {
       <Dialog open={!!selectedToken} onOpenChange={() => setSelectedToken(null)}>
         <DialogPortal>
           <DialogOverlay className="bg-black/90 backdrop-blur-sm z-[999]" />
-          <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] sm:max-w-none max-w-7xl bg-[#0a0a0a] border border-white/10 p-0 overflow-hidden rounded-3xl shadow-2xl z-[1000]">
+          <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] h-[90vh] md:h-[90vh] sm:max-w-none max-w-7xl bg-[#0a0a0a] border border-white/10 p-0 overflow-y-auto md:overflow-hidden rounded-3xl shadow-2xl z-[1000]">
              {selectedToken && (
-               <div className="flex flex-col h-full">
+               <div className="flex flex-col h-full md:h-full">
                   {/* Modal Header */}
-                  <div className="p-6 border-b border-white/5 flex flex-wrap justify-between items-center bg-white/[0.02]">
+                  <div className="p-4 md:p-6 border-b border-white/5 flex flex-wrap justify-between items-center bg-white/[0.02]">
                      <div className="flex items-center gap-6">
-                        <img src={selectedToken.logo} className="w-16 h-16 rounded-2xl border border-white/10" alt="" />
+                        <img src={selectedToken.logo} className="w-12 h-12 md:w-16 md:h-16 rounded-2xl border border-white/10" alt="" />
                         <div>
-                           <div className="flex items-center gap-3">
-                              <h2 className="text-4xl font-black text-white tracking-tight">{selectedToken.symbol}</h2>
-                              <span className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] font-bold text-white/50 uppercase tracking-widest">{selectedToken.network}</span>
+                           <div className="flex items-center gap-2 md:gap-3">
+                              <h2 className="text-2xl md:text-4xl font-black text-white tracking-tight">{selectedToken.symbol}</h2>
+                              <span className="px-1.5 py-0.5 md:px-2 md:py-1 rounded-md bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-bold text-white/50 uppercase tracking-widest">{selectedToken.network}</span>
                            </div>
-                           <p className="text-sm font-medium text-white/40 mt-1">{selectedToken.name}</p>
+                           <p className="text-xs md:text-sm font-medium text-white/40 mt-0.5 md:mt-1">{selectedToken.name}</p>
                         </div>
                      </div>
-                     <div className="flex items-center gap-8">
+                     <div className="flex items-center gap-4 md:gap-8">
                         <div className="text-right hidden sm:block">
                           <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1">Price</p>
-                          <p className="text-3xl font-black text-white tabular-nums">${selectedToken.price < 0.001 ? selectedToken.price.toFixed(6) : selectedToken.price.toLocaleString()}</p>
+                          <p className="text-2xl md:text-3xl font-black text-white tabular-nums">${selectedToken.price < 0.001 ? selectedToken.price.toFixed(6) : selectedToken.price.toLocaleString()}</p>
                         </div>
                         <div className={cn(
-                          "px-4 py-2 rounded-xl text-xl font-bold tabular-nums border",
+                          "px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-base md:text-xl font-bold tabular-nums border",
                           selectedToken.change >= 0 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"
                         )}>
                           {selectedToken.change >= 0 ? "+" : ""}{selectedToken.change.toFixed(2)}%
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedToken(null)} className="rounded-full">
-                          <X className="w-6 h-6" />
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedToken(null)} className="rounded-full w-8 h-8 md:w-10 md:h-10">
+                          <X className="w-4 h-4 md:w-6 md:h-6" />
                         </Button>
                      </div>
                   </div>
                   {/* Modal Body */}
-                  <div className="flex-1 bg-black/50 p-4 relative z-10 min-h-0">
+                  <div className="flex-1 bg-black/50 p-2 md:p-4 relative z-10 min-h-[350px] sm:min-h-[400px] md:min-h-0">
                      <TradingViewWidget symbol={selectedToken.symbol} network={selectedToken.network} pairAddress={selectedToken.pairAddress} />
                   </div>
                   {/* Modal Footer */}
-                  <div className="p-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-6 bg-white/[0.01]">
+                  <div className="p-4 md:p-6 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 bg-white/[0.01]">
                      {[
                         { label: "24H Volume", value: `$${(selectedToken.volume / 1000000).toFixed(2)}M`, icon: Activity },
                         { label: "AI Signal", value: selectedToken.signal?.replace("_", " "), icon: BrainCircuit, color: "text-blue-400" },
                         { label: "Trend", value: selectedToken.change > 0 ? "Bullish" : "Bearish", icon: Target, color: selectedToken.change > 0 ? "text-emerald-400" : "text-rose-400" },
                         { label: "Address", value: selectedToken.address.slice(0, 8) + "...", icon: Network },
                      ].map((item, i) => (
-                        <div key={i} className="space-y-2">
-                           <div className="flex items-center gap-2 text-white/40">
-                              <item.icon className="w-4 h-4" />
-                              <span className="text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
+                        <div key={i} className="space-y-1 md:space-y-2">
+                           <div className="flex items-center gap-1.5 md:gap-2 text-white/40">
+                              <item.icon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                              <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
                            </div>
-                           <p className={cn("text-xl font-bold text-white tabular-nums", item.color)}>{item.value}</p>
+                           <p className={cn("text-lg md:text-xl font-bold text-white tabular-nums", item.color)}>{item.value}</p>
                         </div>
                      ))}
                   </div>
