@@ -22,6 +22,7 @@ import remarkGfm from "remark-gfm";
 import { InteractiveRobotSpline } from "@/components/ui/interactive-3d-robot";
 import { useAccount, useSendTransaction, usePublicClient, useSwitchChain } from "wagmi";
 import { parseUnits, formatUnits, erc20Abi, encodeFunctionData, getAddress, isAddress } from "viem";
+import { getBuilderSuffix } from "@/lib/base-developer";
 
 const BASE_TOKENS: Record<string, { address: `0x${string}`; decimals: number; symbol: string; logo: string }> = {
   ETH: { address: "0x0000000000000000000000000000000000000000", decimals: 18, symbol: "ETH", logo: "⟠" },
@@ -153,7 +154,8 @@ function OnchainActionExecutor({ messageId, actionData, onActionComplete }: Onch
         if (tokenDetails.address === "0x0000000000000000000000000000000000000000") {
           hash = await sendTransactionAsync({
             to: getAddress(actionData.to),
-            value: parseUnits(actionData.amount, 18)
+            value: parseUnits(actionData.amount, 18),
+            dataSuffix: getBuilderSuffix()
           });
         } else {
           const amountInBigInt = parseUnits(actionData.amount, tokenDetails.decimals);
@@ -164,7 +166,8 @@ function OnchainActionExecutor({ messageId, actionData, onActionComplete }: Onch
           });
           hash = await sendTransactionAsync({
             to: getAddress(tokenDetails.address),
-            data: txData
+            data: txData,
+            dataSuffix: getBuilderSuffix()
           });
         }
         
@@ -211,7 +214,8 @@ function OnchainActionExecutor({ messageId, actionData, onActionComplete }: Onch
             });
             await sendTransactionAsync({
               to: getAddress(fromTokenDetails.address),
-              data: approveData
+              data: approveData,
+              dataSuffix: getBuilderSuffix()
             });
             
             alert(`Token approved successfully! Please click 'Sign & Swap' once again to finalise.`);
@@ -224,7 +228,8 @@ function OnchainActionExecutor({ messageId, actionData, onActionComplete }: Onch
         const hash = await sendTransactionAsync({
           to: getAddress(tx.to),
           data: tx.data as `0x${string}`,
-          value: BigInt(tx.value)
+          value: BigInt(tx.value),
+          dataSuffix: getBuilderSuffix()
         });
         
         setTxHash(hash);

@@ -10,10 +10,10 @@ import { base } from "viem/chains";
 // Registered Base Builder Code: "bc_xm6aa6ws"
 const NEUROBASE_BUILDER_CODE = "bc_xm6aa6ws";
 // ERC-8021 data suffix generated for "bc_xm6aa6ws"
-const NEUROBASE_BUILDER_SUFFIX = "0x62635f786d3661613677730b0080218021802180218021802180218021";
+const NEUROBASE_BUILDER_SUFFIX: `0x${string}` = "0x62635f786d3661613677730b0080218021802180218021802180218021";
 
 export const getBuilderCode = () => NEUROBASE_BUILDER_CODE;
-export const getBuilderSuffix = () => NEUROBASE_BUILDER_SUFFIX;
+export const getBuilderSuffix = (): `0x${string}` => NEUROBASE_BUILDER_SUFFIX;
 
 /**
  * Attaches builder code data suffix to transaction data for attribution

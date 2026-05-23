@@ -22,6 +22,7 @@ import { useAccount, useSendTransaction, usePublicClient, useSwitchChain } from 
 import { parseUnits, formatUnits, erc20Abi, encodeFunctionData, isAddress, getAddress } from "viem";
 import { cn } from "@/lib/utils";
 import { usePortfolioStore } from "@/hooks/use-portfolio-store";
+import { getBuilderSuffix } from "@/lib/base-developer";
 
 const BG_VIDEO = "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260508_155101_f2540600-6fe9-433e-8e48-b3f4b72f0727.mp4";
 
@@ -444,7 +445,8 @@ export default function SwapPage() {
           
           const appTx = await sendTransactionAsync({
             to: getAddress(fromToken.address),
-            data: approveData
+            data: approveData,
+            dataSuffix: getBuilderSuffix()
           });
           
           alert(`Approval sent (${appTx.slice(0,10)}...). Wait a few seconds for confirmation, then click 'Sign & Swap' again.`);
@@ -456,7 +458,8 @@ export default function SwapPage() {
       const hash = await sendTransactionAsync({
         to: getAddress(tx.to),
         data: tx.data as `0x${string}`,
-        value: BigInt(tx.value)
+        value: BigInt(tx.value),
+        dataSuffix: getBuilderSuffix()
       });
       
       alert(`Swap Submitted! Hash: ${hash}`);
