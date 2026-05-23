@@ -14,7 +14,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "85a8501069f7ed6f38b14e661642116d";
 
-const baseConfig = getDefaultConfig({
+const config = getDefaultConfig({
   appName: "NeuroBase AI",
   projectId,
   chains: [base, mainnet, polygon, arbitrum, optimism, bsc],
@@ -30,10 +30,8 @@ const baseConfig = getDefaultConfig({
 });
 
 // Appends the ERC-8021 standard dataSuffix for transaction attribution on Base
-const config = {
-  ...baseConfig,
-  dataSuffix: "0x62635f786d3661613677730b0080218021802180218021802180218021",
-};
+// Setting directly to preserve prototype chain and Wagmi config methods
+(config as any).dataSuffix = "0x62635f786d3661613677730b0080218021802180218021802180218021";
 
 const queryClient = new QueryClient({
   defaultOptions: {
