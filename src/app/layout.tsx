@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NeuroBase AI | Autonomous Onchain Intelligence",
   description: "Next-generation AI agents for the Base ecosystem.",
+  other: {
+    "base:app_id": "69cd297c19afd75ffc3d3b12",
+  },
 };
 
 export default function RootLayout({
@@ -27,6 +30,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Base Build Verification Meta Tag */}
+        <meta name="base:app_id" content="69cd297c19afd75ffc3d3b12" />
+        
         {/* Preconnect to Spline's hosted CDN to complete DNS/TCP/SSL handshakes early */}
         <link rel="dns-prefetch" href="https://prod.spline.design" />
         <link rel="preconnect" href="https://prod.spline.design" crossOrigin="anonymous" />
