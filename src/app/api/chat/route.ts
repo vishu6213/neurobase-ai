@@ -32,20 +32,32 @@ function getEnvKeyFallback(): string {
 
 export async function POST(req: Request) {
   try {
-    const { messages, walletContext } = await req.json();
-    const lastMessage = messages[messages.length - 1].content;
+    const body = await req.json().catch(() => ({}));
+    const { messages, walletContext } = body;
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json({ error: "Invalid messages format. Messages array is required." }, { status: 400 });
+    }
+
+    const lastMessageObj = messages[messages.length - 1];
+    const lastMessage = lastMessageObj?.content || "";
 
     // Check if the message requires an onchain action
     const onchainKeywords = ["balance", "swap", "buy", "sell", "send", "transfer", "onchain", "wallet"];
     let agentContext = "";
     
-    if (onchainKeywords.some(keyword => lastMessage.toLowerCase().includes(keyword))) {
+    if (lastMessage && onchainKeywords.some(keyword => lastMessage.toLowerCase().includes(keyword))) {
       agentContext = await executeAgentAction(lastMessage);
     }
     let walletContextPrompt = "";
     if (walletContext && walletContext.connectedAddress) {
       const tokensList = Array.isArray(walletContext.tokens) 
-        ? walletContext.tokens.map((t: any) => `${t.bal} ${t.symbol} ($${t.usdValue})`).join(", ")
+        ? walletContext.tokens.map((t: any) => {
+            const bal = t?.bal !== undefined && t?.bal !== null ? t.bal : "0";
+            const symbol = t?.symbol || "";
+            const usdValue = t?.usdValue !== undefined && t?.usdValue !== null ? t.usdValue : "0";
+            return `${bal} ${symbol} ($${usdValue})`;
+          }).join(", ")
         : "None";
       
       const nativeSymbols: Record<string, string> = {
@@ -63,14 +75,16 @@ export async function POST(req: Request) {
         ? Object.entries(walletContext.nativeBalances)
             .map(([chain, data]: [string, any]) => {
               const sym = nativeSymbols[chain.toLowerCase()] || "ETH";
-              return `${chain.toUpperCase()}: ${data.bal} ${sym} (at $${data.price}/${sym})`;
+              const bal = data && typeof data === "object" && data.bal !== undefined && data.bal !== null ? data.bal : "0";
+              const price = data && typeof data === "object" && data.price !== undefined && data.price !== null ? data.price : "0";
+              return `${chain.toUpperCase()}: ${bal} ${sym} (at $${price}/${sym})`;
             })
             .join(", ")
         : "None";
 
       walletContextPrompt = `
       Connected Wallet: ${walletContext.connectedAddress}
-      Total Portfolio Balance (USD): $${walletContext.totalValue}
+      Total Portfolio Balance (USD): $${walletContext.totalValue || "0"}
       Native Balances: ${nativeList}
       ERC-20 Token Balances: ${tokensList}
       `;
@@ -138,9 +152,6 @@ export async function POST(req: Request) {
       "google/gemini-2.0-flash-001",            // Primary paid - fast, reliable
       "google/gemini-2.5-flash",                // Secondary paid - fast, smart, cheap
       "openrouter/free",                        // OpenRouter free router (auto-fallback across all free models)
-      "liquid/lfm-2.5-1.2b-instruct:free",      // Free - backup
-      "nvidia/nemotron-3-super-120b-a12b:free", // Free - backup
-      "nvidia/nemotron-nano-9b-v2:free",         // Free - backup
     ];
 
     let fullContent = "";
@@ -148,12 +159,15 @@ export async function POST(req: Request) {
     let lastErr: any = null;
 
     // Try each model with NON-STREAMING for reliability, then stream result back
-    for (const model of openRouterModels) {
+    for (let i = 0; i < openRouterModels.length; i++) {
+      const model = openRouterModels[i];
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+      // Strict short timeouts to stay well within Vercel's 10-second serverless execution limit
+      const modelTimeout = i === 0 ? 5000 : 2500;
+      const timeoutId = setTimeout(() => controller.abort(), modelTimeout);
       
       try {
-        console.log(`[AI Chat] Trying model: ${model}`);
+        console.log(`[AI Chat] Trying model: ${model} with ${modelTimeout}ms timeout`);
         const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
           cache: "no-store",
@@ -198,14 +212,16 @@ export async function POST(req: Request) {
       } catch (err: any) {
         clearTimeout(timeoutId);
         lastErr = err;
-        const errMsg = err.name === "AbortError" ? "Timeout (25s)" : err.message;
+        const errMsg = err.name === "AbortError" ? `Timeout (${modelTimeout}ms)` : err.message;
         console.warn(`[AI Chat] Model ${model} failed (${errMsg}), trying next...`);
       }
     }
 
     if (!fullContent) {
       console.error("[AI Chat] All models failed. Last error:", lastErr?.message);
-      throw lastErr || new Error("All AI models failed to respond.");
+      // Graceful fallback instead of returning a Server 500 error to keep the user experience premium
+      fullContent = "⚠️ *System Notice: I am temporarily experiencing a connection issue with the AI network. Please try again in a few moments or switch tabs to reload your portfolio.*";
+      modelUsed = "static-fallback";
     }
 
     // Stream the collected content back to the client word-by-word for a nice effect

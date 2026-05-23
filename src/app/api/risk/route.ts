@@ -34,25 +34,25 @@ async function getOpenRouterResponse(prompt: string) {
     openRouterKey = getEnvKeyFallback();
   }
 
-  // Model list: primary paid + confirmed working free models (live-tested)
+  // Model list: primary paid + confirmed working fast models
   const openRouterModels = [
     "google/gemini-2.0-flash-001",               // Primary paid (fast, reliable)
-    "google/gemma-4-26b-a4b-it:free",            // Free - Google Gemma 4 26B (✅ live)
-    "nvidia/nemotron-3-super-120b-a12b:free",    // Free - NVIDIA Nemotron 120B (✅ live)
-    "nvidia/nemotron-nano-9b-v2:free",           // Free - NVIDIA Nemotron 9B (✅ live)
-    "liquid/lfm-2.5-1.2b-instruct:free",        // Free - Liquid 1.2B fast (✅ live)
+    "google/gemini-2.5-flash",                   // Secondary paid (fast, smart, cheap)
     "openrouter/free",                           // Free router (auto-select any free model)
   ];
   let response: Response = null as any;
   let lastErr: any = null;
   let success = false;
 
-  for (const model of openRouterModels) {
+  for (let i = 0; i < openRouterModels.length; i++) {
+    const model = openRouterModels[i];
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15-second timeout per model
+    // Strict short timeouts to stay well within Vercel's 10-second serverless execution limit
+    const modelTimeout = i === 0 ? 5000 : 2500;
+    const timeoutId = setTimeout(() => controller.abort(), modelTimeout);
     
     try {
-      console.log(`[Risk API] Attempting OpenRouter call with model: ${model}...`);
+      console.log(`[Risk API] Attempting OpenRouter call with model: ${model} with ${modelTimeout}ms timeout...`);
       response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         cache: "no-store",
@@ -83,7 +83,7 @@ async function getOpenRouterResponse(prompt: string) {
     } catch (err: any) {
       clearTimeout(timeoutId);
       lastErr = err;
-      const errMsg = err.name === 'AbortError' ? 'Timeout' : err.message;
+      const errMsg = err.name === 'AbortError' ? `Timeout (${modelTimeout}ms)` : err.message;
       console.warn(`[Risk API] Model ${model} failed (${errMsg}), attempting next model...`);
     }
   }

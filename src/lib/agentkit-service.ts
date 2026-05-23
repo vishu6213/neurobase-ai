@@ -1,13 +1,4 @@
 // @ts-nocheck
-import {
-  AgentKit,
-  wethActionProvider,
-  walletActionProvider,
-  erc20ActionProvider,
-  cdpApiActionProvider,
-  cdpEvmWalletActionProvider,
-  pythActionProvider,
-} from "@coinbase/agentkit";
 
 /**
  * AgentKit Service
@@ -26,6 +17,17 @@ export async function getAgent() {
   }
 
   try {
+    // Dynamically import to avoid import-time crashes in environments where native bindings fail
+    const {
+      AgentKit,
+      wethActionProvider,
+      walletActionProvider,
+      erc20ActionProvider,
+      cdpApiActionProvider,
+      cdpEvmWalletActionProvider,
+      pythActionProvider,
+    } = await import("@coinbase/agentkit");
+
     // @ts-ignore
     const walletProvider = null; 
 
@@ -48,6 +50,7 @@ export async function getAgent() {
 
     return agentInstance;
   } catch (error) {
+    console.error("[AgentKit] Failed to initialize dynamic AgentKit instance:", error);
     return null;
   }
 }
