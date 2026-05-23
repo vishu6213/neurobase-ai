@@ -7,18 +7,20 @@ import { base } from "viem/chains";
  * Following the "Base Developer Skill" standards for production-ready apps on Base.
  */
 
-// Placeholder for NeuroBase AI Builder Code (EIP-5792 / Transaction Attribution)
-// In a real scenario, this would be your registered builder code
-const NEUROBASE_BUILDER_CODE = "0x4e424149"; // "NBAI" in hex
+// Registered Base Builder Code: "bc_xm6aa6ws"
+const NEUROBASE_BUILDER_CODE = "bc_xm6aa6ws";
+// ERC-8021 data suffix generated for "bc_xm6aa6ws"
+const NEUROBASE_BUILDER_SUFFIX = "0x62635f786d3661613677730b0080218021802180218021802180218021";
 
 export const getBuilderCode = () => NEUROBASE_BUILDER_CODE;
+export const getBuilderSuffix = () => NEUROBASE_BUILDER_SUFFIX;
 
 /**
- * Attaches builder code to transaction data for attribution
- * Following: https://docs.base.org/base-chain/builder-codes/builder-codes
+ * Attaches builder code data suffix to transaction data for attribution
+ * Following the ERC-8021 calldata suffix standard
  */
 export const attachBuilderCode = (data: `0x${string}`) => {
-  return concat([data, hexToBytes(NEUROBASE_BUILDER_CODE)]) as `0x${string}`;
+  return concat([data, hexToBytes(NEUROBASE_BUILDER_SUFFIX)]) as `0x${string}`;
 };
 
 /**
