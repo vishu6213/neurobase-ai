@@ -73,13 +73,40 @@ function TokenSelector({
   networkChainStr: string;
   defaultTokens?: any[];
 }) {
+  const publicClient = usePublicClient();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [externalTokens, setExternalTokens] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
 
   useEffect(() => {
-    if (search.length > 1 && !isAddress(search)) {
+    if (isAddress(search)) {
+      const fetchCustomToken = async () => {
+        setSearching(true);
+        try {
+          const addr = getAddress(search);
+          if (publicClient) {
+            const [symbol, name, decimals] = await Promise.all([
+              publicClient.readContract({ address: addr, abi: erc20Abi, functionName: "symbol" }).catch(() => "CUSTOM"),
+              publicClient.readContract({ address: addr, abi: erc20Abi, functionName: "name" }).catch(() => "Custom Token"),
+              publicClient.readContract({ address: addr, abi: erc20Abi, functionName: "decimals" }).catch(() => 18),
+            ]);
+            setExternalTokens([{
+              symbol,
+              name,
+              address: addr,
+              color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+              logo: "🪙",
+              decimals
+            }]);
+          }
+        } catch (e) {
+          console.warn("Failed to fetch custom token details:", e);
+        }
+        setSearching(false);
+      };
+      fetchCustomToken();
+    } else if (search.length > 1) {
       const timer = setTimeout(async () => {
         setSearching(true);
         try {
@@ -107,7 +134,7 @@ function TokenSelector({
                     address: t.address,
                     color: "#" + Math.floor(Math.random() * 16777215).toString(16),
                     logo: p.info?.imageUrl || "🪙",
-                    decimals: null // will be fetched dynamically if selected
+                    decimals: null
                   });
                 }
               }
@@ -121,7 +148,7 @@ function TokenSelector({
     } else {
       setExternalTokens([]);
     }
-  }, [search, networkChainStr]);
+  }, [search, networkChainStr, publicClient]);
 
   const allTokensMap = new Map();
   defaultTokens.forEach(t => allTokensMap.set(t.symbol, t));
@@ -436,7 +463,7 @@ export default function SwapPage() {
         });
   
         if (allowance < amountIn) {
-          alert("Approval required. Please confirm the approval transaction in your wallet.");
+          alert("Approval required. Please confirm the token approval transaction in your wallet.");
           const approveData = encodeFunctionData({
             abi: erc20Abi,
             functionName: 'approve',
@@ -449,8 +476,10 @@ export default function SwapPage() {
             dataSuffix: getBuilderSuffix()
           });
           
-          alert(`Approval sent (${appTx.slice(0,10)}...). Wait a few seconds for confirmation, then click 'Sign & Swap' again.`);
-          return;
+          alert(`Approval transaction submitted. Automatically waiting for confirmation on-chain...`);
+          // Automatically wait for the approval transaction to be mined
+          await publicClient.waitForTransactionReceipt({ hash: appTx });
+          alert(`Token successfully approved! Please confirm the signature for the actual Swap transaction in your wallet.`);
         }
       }
   
